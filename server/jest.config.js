@@ -1,13 +1,8 @@
 /** @type {import('jest').Config} */
 module.exports = {
   testEnvironment: 'node',
-  testMatch: [
-    '**/tests/unit/server.test.js',
-  ],
-  roots: ['..'],
-  collectCoverageFrom: [
-    'server.js',
-  ],
+  testMatch: ['<rootDir>/server.test.js'],
+  collectCoverageFrom: ['server.js'],
   coverageThreshold: {
     global: {
       lines:     85,
@@ -17,5 +12,5 @@ module.exports = {
     },
   },
   coverageReporters: ['text', 'lcov'],
-  coverageDirectory: '../coverage/server',
+  coverageDirectory: 'coverage',
 };
