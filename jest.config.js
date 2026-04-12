@@ -1,12 +1,12 @@
 /** @type {import('jest').Config} */
 module.exports = {
   testEnvironment: 'node',
+  // Only run utils tests here — server tests live in server/ with their own deps
   testMatch: [
-    '**/tests/unit/**/*.test.js',
+    '**/tests/unit/utils.test.js',
   ],
   collectCoverageFrom: [
     'js/utils.js',
-    'server/server.js',
   ],
   coverageThreshold: {
     global: {

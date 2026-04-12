@@ -56,7 +56,7 @@ jobs:
 
       - name: Run server tests
         working-directory: server
-        run: npm test
+        run: npx jest --config jest.config.js --coverage
         env:
           ANTHROPIC_API_KEY: test-key-ci
 
