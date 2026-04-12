@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CashPilot</title>
+<style>
+:root{
+  --green:#15803d;--green-l:#dcfce7;--green-d:#14532d;
+  --bg:#fafaf9;--card:#ffffff;
+  --text:#1c1917;--text2:#78716c;--border:#e7e5e4;
+  --red:#dc2626;--red-l:#fef2f2;
+  --orange:#c2410c;--orange-l:#fff7ed;
+  --blue:#1d4ed8;--blue-l:#eff6ff;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:560px;margin:0 auto;padding:20px 16px 40px;transition:max-width .3s;}
+.wrap.wide{max-width:960px;}
+.screen{display:none;}.screen.active{display:block;animation:fadeUp .22s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+.logo{font-size:17px;font-weight:900;color:var(--green-d);letter-spacing:-.4px;display:flex;align-items:center;gap:7px;}
+.logo-icon{width:28px;height:28px;background:var(--green-d);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.hdr-btns{display:flex;gap:6px;}
+.langbtn{font-size:11px;font-weight:700;padding:5px 12px;border:1.5px solid var(--border);border-radius:20px;cursor:pointer;background:var(--card);color:var(--text2);font-family:inherit;transition:all .15s;letter-spacing:.3px;}
+.langbtn.on{background:var(--green-d);color:#fff;border-color:var(--green-d);}
+.viewbtn{font-size:13px;padding:5px 10px;border:1.5px solid var(--border);border-radius:20px;cursor:pointer;background:var(--card);color:var(--text2);font-family:inherit;}
+
+/* PROGRESS */
+.progress-steps{display:flex;align-items:center;justify-content:center;margin-bottom:28px;}
+.pstep{display:flex;flex-direction:column;align-items:center;gap:5px;}
+.pstep-circle{width:28px;height:28px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--text2);transition:all .3s;}
+.pstep-circle.on{background:var(--green-d);color:#fff;box-shadow:0 0 0 4px var(--green-l);}
+.pstep-circle.done{background:var(--green);color:#fff;}
+.pstep-label{font-size:9px;color:var(--text2);white-space:nowrap;font-weight:500;}
+.pstep-label.on{color:var(--green-d);font-weight:800;}
+.pline{width:28px;height:2px;background:var(--border);margin-bottom:16px;}
+.pline.on{background:var(--green);}
+
+/* BUTTONS */
+.btn-primary{width:100%;padding:16px;font-size:15px;font-weight:800;border:none;border-radius:14px;cursor:pointer;font-family:inherit;background:var(--green-d);color:#fff;transition:all .15s;letter-spacing:-.1px;}
+.btn-primary:hover{background:#1a4d35;box-shadow:var(--sh-md);transform:translateY(-1px);}
+.btn-primary:active{transform:none;box-shadow:none;}
+.btn-sec{background:var(--card);color:var(--text);border:1.5px solid var(--border);font-size:13px;padding:10px 18px;border-radius:10px;cursor:pointer;font-family:inherit;font-weight:600;transition:all .15s;}
+.btn-sec:hover{border-color:var(--text2);}
+
+/* WELCOME */
+.welcome-hero{text-align:center;padding:12px 0 28px;}
+.welcome-badge{display:inline-flex;align-items:center;gap:6px;background:var(--green-l);color:var(--green-d);font-size:11px;font-weight:700;padding:5px 13px;border-radius:20px;margin-bottom:20px;letter-spacing:.4px;}
+.welcome-title{font-size:30px;font-weight:900;margin-bottom:12px;line-height:1.18;letter-spacing:-.6px;}
+.welcome-title em{color:var(--green);font-style:normal;}
+.welcome-sub{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:24px;}
+.wsteps{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:26px;}
+.wstep{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:15px 10px;text-align:center;box-shadow:var(--sh);}
+.wstep-icon{font-size:22px;margin-bottom:7px;}
+.wstep-title{font-size:11px;font-weight:800;color:var(--text);margin-bottom:2px;}
+.wstep-sub{font-size:10px;color:var(--text2);line-height:1.4;}
+.welcome-privacy{font-size:11px;color:var(--text2);margin-top:12px;display:flex;align-items:center;justify-content:center;gap:4px;}
+
+/* UPLOAD */
+.page-title{font-size:22px;font-weight:900;margin-bottom:4px;letter-spacing:-.4px;}
+.page-sub{font-size:13px;color:var(--text2);margin-bottom:20px;}
+.upload-slots{display:flex;gap:8px;justify-content:center;margin-bottom:20px;}
+.uslot{width:52px;height:52px;border-radius:12px;border:2px dashed var(--border);background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:20px;color:var(--text2);padding:4px;transition:all .2s;position:relative;}
+.uslot.filled{background:var(--green-l);border-color:var(--green);border-style:solid;}
+.slot-num{position:absolute;top:2px;right:4px;font-size:9px;color:var(--green);font-weight:900;}
+.slot-name{font-size:9px;line-height:1.2;color:var(--green-d);font-weight:700;word-break:break-all;max-width:44px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.uzone{border:2px dashed var(--border);border-radius:18px;padding:40px 20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--card);margin-bottom:16px;}
+.uzone:hover,.uzone.drag{background:var(--blue-l);border-color:#93c5fd;}
+.uzone-icon{font-size:38px;margin-bottom:12px;}
+.uzone-title{font-size:15px;font-weight:800;margin-bottom:4px;}
+.uzone-sub{font-size:12px;color:var(--text2);}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--text2);margin:3px;font-weight:500;}
+.chip-x{cursor:pointer;color:var(--text2);font-size:12px;width:16px;height:16px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--border);}
+.tip-box{background:var(--blue-l);border-radius:12px;padding:12px 16px;font-size:12px;color:#1e3a8a;line-height:1.6;margin-bottom:16px;border:1px solid #bfdbfe;}
+.disc{font-size:11px;color:var(--text2);padding:10px 14px;border-radius:10px;background:var(--bg);line-height:1.6;margin-top:14px;text-align:center;border:1px solid var(--border);}
+
+/* LOADING */
+.load-wrap{text-align:center;padding:60px 0;}
+.load-spinner{display:flex;gap:7px;justify-content:center;margin-bottom:24px;}
+.load-dot{width:11px;height:11px;border-radius:50%;background:var(--green);animation:ldot 1.3s ease-in-out infinite;}
+.load-dot:nth-child(2){animation-delay:.18s;background:var(--green-d);}
+.load-dot:nth-child(3){animation-delay:.36s;}
+@keyframes ldot{0%,80%,100%{transform:scale(.7);opacity:.5;}40%{transform:scale(1.1);opacity:1;}}
+.load-title{font-size:18px;font-weight:800;margin-bottom:8px;}
+.load-sub{font-size:13px;color:var(--text2);margin-bottom:24px;}
+.pbar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;max-width:240px;margin:0 auto;}
+.pfill{height:100%;background:var(--green);border-radius:3px;transition:width .5s ease;}
+.load-step{font-size:12px;color:var(--text2);margin-top:10px;}
+
+/* CONFIRM */
+.confirm-card{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:18px;margin-bottom:12px;transition:all .2s;box-shadow:var(--sh);}
+.confirm-card.confirmed{border-color:var(--green);background:#f0fdf4;}
+.confirm-file{font-size:11px;color:var(--text2);margin-bottom:8px;font-weight:500;}
+.confirm-type-badge{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;padding:7px 16px;border-radius:20px;background:var(--blue-l);color:var(--blue);margin-bottom:12px;}
+.confirm-yes{background:var(--green-l);color:var(--green-d);border:none;padding:9px 18px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.confirm-no{background:var(--card);color:var(--text2);border:1.5px solid var(--border);padding:9px 18px;border-radius:10px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:500;}
+.type-list{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:12px;max-height:200px;overflow-y:auto;}
+.type-opt{padding:8px 10px;font-size:12px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text2);cursor:pointer;text-align:right;font-family:inherit;transition:all .12s;font-weight:500;}
+.type-opt:hover,.type-opt.on{background:var(--blue-l);color:var(--blue);border-color:#93c5fd;font-weight:700;}
+
+/* DASHBOARD */
+.pdf-switcher{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.pdf-btn{padding:7px 16px;font-size:12px;border:1.5px solid var(--border);border-radius:20px;cursor:pointer;background:var(--card);color:var(--text2);font-family:inherit;transition:all .15s;white-space:nowrap;font-weight:700;}
+.pdf-btn.on{background:var(--green-d);color:#fff;border-color:var(--green-d);}
+.doc-type-badge{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;background:var(--blue-l);color:var(--blue);}
+.doc-company{font-size:12px;color:var(--text2);margin-top:3px;margin-bottom:2px;}
+.change-type-link{font-size:11px;color:var(--text2);cursor:pointer;text-decoration:underline;display:inline-block;margin-bottom:14px;}
+
+/* HEALTH SCORE */
+.health-card{background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:18px 20px;margin-bottom:16px;display:flex;align-items:center;gap:18px;box-shadow:var(--sh);}
+.health-left{text-align:center;min-width:72px;}
+.health-num{font-size:44px;font-weight:900;line-height:1;letter-spacing:-3px;}
+.health-label{font-size:11px;font-weight:800;margin-top:2px;}
+.health-right{flex:1;}
+.health-title{font-size:13px;font-weight:800;margin-bottom:6px;}
+.health-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px;}
+.health-fill{height:100%;border-radius:4px;transition:width 1s ease;}
+.health-sub{font-size:11px;color:var(--text2);}
+.score-g .health-num,.score-g .health-label{color:var(--green);}
+.score-g .health-fill{background:var(--green);}
+.score-o .health-num,.score-o .health-label{color:var(--orange);}
+.score-o .health-fill{background:var(--orange);}
+.score-r .health-num,.score-r .health-label{color:var(--red);}
+.score-r .health-fill{background:var(--red);}
+
+/* PEOPLE */
+.people-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px;}
+.person-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:16px;text-align:center;box-shadow:var(--sh);}
+.person-card-icon{font-size:28px;margin-bottom:8px;}
+.person-card-name{font-size:11px;color:var(--text2);margin-bottom:6px;font-weight:700;}
+.person-card-amount{font-size:28px;font-weight:900;color:var(--text);letter-spacing:-.5px;}
+.person-card-label{font-size:10px;color:var(--text2);margin-top:4px;}
+
+/* SECTIONS */
+.section-hdr{margin:22px 0 10px;}
+.section-title{font-size:13px;font-weight:800;color:var(--text);letter-spacing:-.1px;}
+.section-sub{font-size:11px;color:var(--text2);margin-top:2px;}
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px;}
+.metric-card{background:var(--card);border-radius:14px;padding:16px;border:1.5px solid var(--border);box-shadow:var(--sh);}
+.metric-label{font-size:11px;color:var(--text2);margin-bottom:6px;line-height:1.4;font-weight:500;}
+.metric-value{font-size:20px;font-weight:900;color:var(--text);letter-spacing:-.3px;}
+.brow{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.blbl{font-size:12px;color:var(--text2);min-width:110px;text-align:right;font-weight:500;}
+.btr{flex:1;height:7px;background:var(--border);border-radius:4px;overflow:hidden;}
+.bfill{height:100%;border-radius:4px;background:var(--blue);}
+.bamt{font-size:12px;font-weight:700;min-width:72px;text-align:left;}
+.cov-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--sh);}
+.crow{display:flex;justify-content:space-between;align-items:flex-start;padding:11px 16px;border-bottom:1px solid var(--bg);gap:12px;}
+.crow:last-child{border-bottom:none;}
+.crow.not-covered{background:var(--red-l);border-right:3px solid var(--red);}
+.cov-label{font-weight:600;color:var(--text);font-size:13px;}
+.cov-detail{font-size:11px;color:var(--text2);margin-top:2px;}
+.cov-detail.danger{color:var(--red);}
+.cy{color:var(--green);font-weight:800;font-size:11px;background:var(--green-l);padding:3px 8px;border-radius:6px;white-space:nowrap;}
+.cn{color:var(--red);font-weight:800;font-size:11px;background:var(--red-l);padding:3px 8px;border-radius:6px;white-space:nowrap;}
+.cpar{color:var(--orange);font-weight:800;font-size:11px;background:var(--orange-l);padding:3px 8px;border-radius:6px;white-space:nowrap;}
+.missing-box{background:var(--red-l);border:1.5px solid #fca5a5;border-radius:14px;padding:14px 16px;margin-bottom:4px;}
+.missing-title{font-size:12px;font-weight:800;color:var(--red);margin-bottom:10px;}
+.missing-item{font-size:12px;color:#991b1b;padding:5px 0;border-bottom:1px solid #fecaca;display:flex;align-items:flex-start;gap:8px;}
+.missing-item:last-child{border-bottom:none;}
+.insight-card{display:flex;gap:12px;align-items:flex-start;padding:13px 16px;border-radius:12px;margin-bottom:8px;line-height:1.6;border:1.5px solid transparent;}
+.insight-card.warning{background:var(--orange-l);color:#7c2d12;border-color:#fed7aa;}
+.insight-card.tip{background:var(--green-l);color:#14532d;border-color:#bbf7d0;}
+.insight-card.info{background:var(--blue-l);color:#1e3a8a;border-color:#bfdbfe;}
+.insight-icon{font-size:15px;flex-shrink:0;margin-top:2px;}
+.insight-text{font-size:12px;font-weight:500;line-height:1.6;}
+.insight-source{font-size:10px;opacity:.6;margin-top:4px;font-style:italic;}
+.flag-btn{font-size:10px;color:var(--text2);border:1px solid var(--border);border-radius:5px;padding:2px 7px;background:transparent;cursor:pointer;margin-top:5px;font-family:inherit;}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:400;align-items:flex-end;justify-content:center;}
+.modal-bg.on{display:flex;}
+.modal-inner{background:var(--card);border-radius:24px 24px 0 0;padding:24px;width:100%;max-width:560px;max-height:80vh;overflow-y:auto;}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px;}
+.modal-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px;}
+.modal-type-btn{padding:9px 10px;font-size:12px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text2);cursor:pointer;text-align:right;font-family:inherit;transition:all .12s;font-weight:500;}
+.modal-type-btn:hover,.modal-type-btn.on{background:var(--blue-l);color:var(--blue);border-color:#93c5fd;font-weight:700;}
+
+/* CHAT */
+.chat-fab{position:fixed;bottom:24px;left:24px;background:var(--green-d);color:#fff;border:none;border-radius:50px;padding:12px 18px;font-size:13px;font-weight:700;cursor:pointer;display:none;align-items:center;gap:8px;z-index:200;font-family:inherit;box-shadow:var(--sh-md);}
+.chat-fab.on{display:flex;}
+.chat-panel{position:fixed;bottom:76px;left:16px;width:340px;max-width:calc(100vw - 32px);background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:18px;z-index:200;display:none;flex-direction:column;gap:10px;max-height:500px;box-shadow:var(--sh-md);}
+.chat-panel.on{display:flex;}
+.chat-header{display:flex;justify-content:space-between;align-items:center;}
+.chat-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2);line-height:1;}
+.chat-msgs{display:flex;flex-direction:column;gap:8px;overflow-y:auto;flex:1;min-height:80px;max-height:260px;}
+.chat-msg{padding:9px 13px;border-radius:12px;font-size:12px;line-height:1.6;max-width:90%;}
+.chat-msg.user{background:var(--green-d);color:#fff;align-self:flex-start;border-radius:12px 12px 12px 3px;}
+.chat-msg.ai{background:var(--bg);color:var(--text);align-self:flex-end;border-radius:12px 12px 3px 12px;border:1px solid var(--border);}
+.chat-input-row{display:flex;gap:8px;}
+.chat-input{flex:1;padding:9px 12px;font-size:13px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;background:var(--card);}
+.chat-input:focus{outline:none;border-color:var(--green);}
+.chat-send-btn{background:var(--green-d);color:#fff;border:none;border-radius:10px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+
+@media(max-width:480px){
+  .metrics-grid{grid-template-columns:1fr 1fr;}
+  .type-list,.modal-type-grid{grid-template-columns:1fr;}
+  .upload-slots{gap:5px;}.uslot{width:46px;height:46px;}
+  .wsteps{grid-template-columns:1fr 1fr;}
+  .welcome-title{font-size:26px;}
+  .health-num{font-size:36px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <div class="hdr">
+    <div class="logo">
+      <div class="logo-icon">💰</div>
+      CashPilot
+    </div>
+    <div class="hdr-btns">
+      <button class="langbtn on" id="heb-btn" onclick="setLang('he')">עב</button>
+      <button class="langbtn" id="en-btn" onclick="setLang('en')">EN</button>
+      <button class="viewbtn" onclick="toggleWide()" id="view-btn">🖥</button>
+    </div>
+  </div>
+  <div class="progress-steps" id="prog-steps"></div>
+
+  <!-- WELCOME -->
+  <div class="screen active" id="s-welcome">
+    <div class="welcome-hero">
+      <div class="welcome-badge" id="w-badge">✦ AI פיננסי ישראלי</div>
+      <div class="welcome-title" id="w-title">הבן את הכסף שלך<br><em>תוך 30 שניות</em></div>
+      <div class="welcome-sub" id="w-sub">העלה מסמכים פיננסיים וקבל ניתוח פשוט, ברור ומדויק — בלי חיבור לבנק.</div>
+      <div class="wsteps">
+        <div class="wstep"><div class="wstep-icon">📄</div><div class="wstep-title" id="ws1t">העלה</div><div class="wstep-sub" id="ws1s">עד 5 מסמכי PDF</div></div>
+        <div class="wstep"><div class="wstep-icon">🤖</div><div class="wstep-title" id="ws2t">AI מנתח</div><div class="wstep-sub" id="ws2s">מזהה ומחלץ הכל</div></div>
+        <div class="wstep"><div class="wstep-icon">📊</div><div class="wstep-title" id="ws3t">דשבורד</div><div class="wstep-sub" id="ws3s">ברור ומיידי</div></div>
+      </div>
+      <button class="btn-primary" onclick="goTo('s-upload')" id="w-btn">בואו נתחיל ←</button>
+      <div class="welcome-privacy" id="w-privacy">🔒 נמחק תוך 60 שניות · אין גישה לבנק · פרטיות מוחלטת</div>
+    </div>
+  </div>
+
+  <!-- UPLOAD -->
+  <div class="screen" id="s-upload">
+    <div class="page-title" id="u-title">העלה את המסמכים שלך</div>
+    <div class="page-sub" id="u-sub">עד 5 קבצי PDF</div>
+    <div class="upload-slots" id="upload-slots"></div>
+    <div class="tip-box">💡 <strong id="u-tip-t">מה אפשר להעלות?</strong><br><span id="u-tip-b">תלוש שכר, ביטוח, חשבון בנק, משכנתא, פנסיה — כל PDF פיננסי ישראלי.</span></div>
+    <div class="uzone" id="uzone" onclick="document.getElementById('fi').click()"
+      ondragover="event.preventDefault();this.classList.add('drag')"
+      ondragleave="this.classList.remove('drag')"
+      ondrop="handleDrop(event)">
+      <div class="uzone-icon">📂</div>
+      <div class="uzone-title" id="u-zone-t">לחץ להעלאת PDF</div>
+      <div class="uzone-sub" id="u-zone-s">או גרור לכאן · PDF בלבד</div>
+    </div>
+    <input type="file" id="fi" accept=".pdf" multiple style="display:none" onchange="addFiles(this.files)">
+    <div id="chips" style="margin-bottom:12px;"></div>
+    <button class="btn-primary" id="go-btn" onclick="startIdentify()" style="display:none;"></button>
+    <div class="disc" id="u-disc">🔒 מוצפן ונמחק תוך 60 שניות. אין חיבור לבנק. אין שמירה.</div>
+  </div>
+
+  <!-- IDENTIFYING -->
+  <div class="screen" id="s-identify">
+    <div class="load-wrap">
+      <div class="load-spinner"><div class="load-dot"></div><div class="load-dot"></div><div class="load-dot"></div></div>
+      <div class="load-title" id="id-title">קורא מסמכים...</div>
+      <div class="load-sub" id="id-sub">מזהה סוג המסמך</div>
+      <div class="pbar"><div class="pfill" id="id-fill" style="width:0%"></div></div>
+      <div class="load-step" id="id-step"></div>
+    </div>
+  </div>
+
+  <!-- CONFIRM -->
+  <div class="screen" id="s-confirm">
+    <div class="page-title" id="cf-title">זיהינו את המסמכים שלך</div>
+    <div class="page-sub" id="cf-sub">בדוק שזיהינו נכון — אפשר לתקן.</div>
+    <div id="confirm-cards"></div>
+    <button class="btn-primary" id="cf-btn" onclick="startAnalyze()">נתח ←</button>
+  </div>
+
+  <!-- ANALYZING -->
+  <div class="screen" id="s-analyze">
+    <div class="load-wrap">
+      <div class="load-spinner"><div class="load-dot"></div><div class="load-dot"></div><div class="load-dot"></div></div>
+      <div class="load-title" id="an-title">מנתח...</div>
+      <div class="load-sub" id="an-sub">מחלץ נתונים מהמסמך</div>
+      <div class="pbar"><div class="pfill" id="an-fill" style="width:0%"></div></div>
+      <div class="load-step" id="an-step"></div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="screen" id="s-dash">
+    <div class="pdf-switcher" id="pdf-sw"></div>
+    <div style="margin-bottom:4px;"><span class="doc-type-badge" id="type-badge">—</span></div>
+    <div class="doc-company" id="company-name"></div>
+    <a class="change-type-link" id="change-link" onclick="openModal()"></a>
+    <div class="people-grid" id="people-grid" style="display:none;"></div>
+    <div id="dash"></div>
+    <div style="display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;">
+      <button class="btn-sec" onclick="doReset()" id="reset-btn">העלה מסמכים חדשים</button>
+      <button class="btn-sec" onclick="doExport()" id="export-btn">שמור סיכום ↓</button>
+    </div>
+    <div class="disc" id="dash-disc">הנתונים מבוססים על המסמך שהועלה בלבד. CashPilot אינה ייעוץ פיננסי, ביטוחי, או משפטי.</div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal" onclick="if(event.target.id==='modal')closeModal()">
+  <div class="modal-inner">
+    <div class="modal-handle"></div>
+    <p style="font-size:16px;font-weight:800;margin-bottom:4px;" id="modal-title">שנה סוג מסמך</p>
+    <p style="font-size:12px;color:var(--text2);" id="modal-file"></p>
+    <div class="modal-type-grid" id="modal-grid"></div>
+    <button class="btn-sec" style="width:100%;margin-top:14px;" onclick="closeModal()" id="modal-cancel">ביטול</button>
+  </div>
+</div>
+
+<!-- CHAT -->
+<button class="chat-fab" id="chat-fab" onclick="toggleChat()">
+  <span>💬</span><span id="chat-fab-lbl">שאל אותי</span>
+</button>
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-header">
+    <div>
+      <p style="font-size:13px;font-weight:800;" id="chat-title">שאל אותי על המסמך</p>
+      <p style="font-size:11px;color:var(--text2);" id="chat-sub">אענה בשפה פשוטה</p>
+    </div>
+    <button class="chat-close" onclick="toggleChat()">×</button>
+  </div>
+  <div class="chat-msgs" id="chat-msgs"></div>
+  <div class="chat-input-row">
+    <input class="chat-input" id="chat-input" onkeydown="if(event.key==='Enter')sendChat()" id="chat-inp">
+    <button class="chat-send-btn" onclick="sendChat()" id="chat-send">→</button>
+  </div>
+  <div style="font-size:10px;color:var(--text2);text-align:center;" id="chat-disc">לא ייעוץ פיננסי · מבוסס על המסמך שלך בלבד</div>
+</div>
+
+<script>
+// ─── CONFIG ────────────────────────────────────────────────────────────────
+var RAILWAY = 'https://cashpilot-server-production-a67c.up.railway.app/analyze';
+
+var TYPES = ['ביטוח בריאות','ביטוח מחלות קשות','ביטוח שיניים','ביטוח רכב','ביטוח מבנה/דירה','ביטוח אחריות מקצועית','ביטוח עסקים','ביטוח תכולה','ביטוח תאונות אישיות','ביטוח רכב חובה','ביטוח רכב מקיף','ביטוח מנהלים','ביטוח נסיעות לחול','ביטוח חבויות','ביטוח רכב צד ג','ביטוח חיים','ביטוח חיים צד ג','ביטוח חיות מחמד','ביטוח אובדן כושר עבודה','ביטוח משכנתא','חשבון חשמל','חשבון מים','חשבון ארנונה','חשבון גז','חשבון אינטרנט','חשבון טלוויזיה וכבלים','חשבון טלפון','חשבון פלאפון','חשבון בנק','פיקדונות','חיסכונות בשקלים','חיסכונות במטח','פנסיה','קופות גמל להשקעה','תוכנית חיסכון','קופות גמל','קרן השתלמות','תלוש שכר','משכנתא'];
+
+var HINTS = {
+  'תלוש שכר':'Extract employee name, employer, pay period, base salary, all additions (overtime/vacation/bonus), ALL deductions (income tax %, NI, health, pension, savings fund), employer contributions, net pay, bank account last digits.',
+  'משכנתא':'Extract: each track separately (name, type, rate, monthly payment, balance, end date). Total monthly payment, total balance. Early repayment penalty. Interest vs principal split.',
+  'חשבון בנק':'Extract: opening/closing balance, income (salary entries), all expenses, standing orders, credit card charge, bank fees, overdraft usage, any unusual large transactions.',
+  'פנסיה':'Extract: fund name, accumulated balance, monthly return %, management fees, employer+employee contributions, disability coverage amount, survivors coverage.',
+  'ביטוח בריאות':'Extract: insured names and individual monthly premiums for EACH person separately, policy number, company, coverage period, ALL coverages listed. Note: family policies have multiple people each paying different amounts.',
+  'ביטוח חיים':'Extract: insured name, coverage amount, monthly premium, premium in future years (escalation table), discount %, beneficiary, pledge to bank if exists, expiry date.',
+  'ביטוח מבנה/דירה':'Extract: property address, building coverage amount, contents coverage (or note if missing), water damage coverage, 3rd party liability, annual premium, deductibles, discounts.'
+};
+
+var SCREENS = ['s-welcome','s-upload','s-identify','s-confirm','s-analyze','s-dash'];
+var LHE = ['ברוך הבא','העלאה','זיהוי','אישור','ניתוח','תוצאות'];
+var LEN = ['Welcome','Upload','Identify','Confirm','Analyze','Results'];
+var ICONS = {warning:'⚠️',tip:'💡',info:'ℹ️'};
+
+// ─── STATE ─────────────────────────────────────────────────────────────────
+var S = {lang:'he', wide:false, files:[], b64s:[], types:[], results:[], cur:0, curPerson:0, chatOpen:false, chat:[]};
+
+// ─── HELPERS ───────────────────────────────────────────────────────────────
+function t(he,en){return S.lang==='he'?he:en;}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+function fmt(n){return n?'₪'+Math.round(n).toLocaleString('he-IL'):'—';}
+function el(id){return document.getElementById(id);}
+function toB64(f){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result.split(',')[1]);};r.onerror=rej;r.readAsDataURL(f);});}
+
+function calcScore(coverages){
+  if(!coverages||!coverages.length)return null;
+  var pts=coverages.reduce(function(s,c){return s+(c.status==='yes'?2:c.status==='partial'?1:0);},0);
+  return Math.round((pts/(coverages.length*2))*100);
+}
+function scoreClass(n){return n>=80?'score-g':n>=55?'score-o':'score-r';}
+function scoreLbl(n){
+  if(n===null)return '';
+  if(n>=80)return t('מצוין','Excellent');
+  if(n>=65)return t('טוב','Good');
+  if(n>=50)return t('בינוני','Average');
+  return t('דורש תשומת לב','Needs attention');
+}
+
+// ─── API ────────────────────────────────────────────────────────────────────
+function callAI(msgs, max){
+  return fetch(RAILWAY,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514', max_tokens:max, messages:[{role:'user',content:msgs}]})
+  }).then(function(r){return r.json();}).then(function(d){
+    if(d.error)throw new Error(d.error.message);
+    return d.content.map(function(b){return b.text||'';}).join('');
+  });
+}
+
+function safeJSON(raw){
+  try{
+    var c=raw.replace(/```json|```/g,'').trim();
+    var s=c.indexOf('{'),e=c.lastIndexOf('}');
+    if(s!==-1&&e!==-1)c=c.substring(s,e+1);
+    return JSON.parse(c);
+  }catch(e){return null;}
+}
+
+// ─── LANGUAGE ───────────────────────────────────────────────────────────────
+function setLang(lang){
+  S.lang=lang;
+  document.documentElement.dir=lang==='he'?'rtl':'ltr';
+  document.documentElement.lang=lang;
+  el('heb-btn').classList.toggle('on',lang==='he');
+  el('en-btn').classList.toggle('on',lang==='en');
+  updateText();
+  renderProgress();
+  if(el('s-dash').classList.contains('active')&&S.results[S.cur])renderDoc(S.cur);
+}
+
+function updateText(){
+  el('w-badge').textContent=t('✦ AI פיננסי ישראלי','✦ Israeli Financial AI');
+  el('w-title').innerHTML=t('הבן את הכסף שלך<br><em>תוך 30 שניות</em>','Understand your money<br><em>in 30 seconds</em>');
+  el('w-sub').textContent=t('העלה מסמכים פיננסיים וקבל ניתוח פשוט, ברור ומדויק — בלי חיבור לבנק.','Upload financial documents and get a simple, clear analysis — no bank connection needed.');
+  el('ws1t').textContent=t('העלה','Upload');el('ws1s').textContent=t('עד 5 מסמכי PDF','Up to 5 PDFs');
+  el('ws2t').textContent=t('AI מנתח','AI Analyzes');el('ws2s').textContent=t('מזהה ומחלץ הכל','Identifies & extracts');
+  el('ws3t').textContent=t('דשבורד','Dashboard');el('ws3s').textContent=t('ברור ומיידי','Clear & instant');
+  el('w-btn').textContent=t('בואו נתחיל ←',"Let's start →");
+  el('w-privacy').textContent=t('🔒 נמחק תוך 60 שניות · אין גישה לבנק · פרטיות מוחלטת','🔒 Deleted in 60s · No bank access · Full privacy');
+  el('u-title').textContent=t('העלה את המסמכים שלך','Upload your documents');
+  el('u-sub').textContent=t('עד 5 קבצי PDF','Up to 5 PDFs');
+  el('u-tip-t').textContent=t('מה אפשר להעלות?','What can I upload?');
+  el('u-tip-b').textContent=t('תלוש שכר, ביטוח, חשבון בנק, משכנתא, פנסיה — כל PDF פיננסי ישראלי.','Pay stub, insurance, bank statement, mortgage, pension — any Israeli financial PDF.');
+  el('u-zone-t').textContent=t('לחץ להעלאת PDF','Click to upload PDF');
+  el('u-zone-s').textContent=t('או גרור לכאן · PDF בלבד','or drag here · PDF only');
+  el('u-disc').textContent=t('🔒 מוצפן ונמחק תוך 60 שניות. אין חיבור לבנק. אין שמירה.','🔒 Encrypted and deleted in 60 seconds. No bank connection. No storage.');
+  el('cf-title').textContent=t('זיהינו את המסמכים שלך','We identified your documents');
+  el('cf-sub').textContent=t('בדוק שזיהינו נכון — אפשר לתקן.','Check we identified correctly — easy to fix.');
+  el('cf-btn').textContent=t('נתח ←','Analyze →');
+  el('change-link').textContent=t('זה לא נכון? שנה סוג','Not correct? Change type');
+  el('reset-btn').textContent=t('העלה מסמכים חדשים','Upload new documents');
+  el('export-btn').textContent=t('שמור סיכום ↓','Save summary ↓');
+  el('dash-disc').textContent=t('הנתונים מבוססים על המסמך שהועלה בלבד. CashPilot אינה ייעוץ פיננסי, ביטוחי, או משפטי.','Data based solely on uploaded document. Not financial, insurance, or legal advice.');
+  el('chat-fab-lbl').textContent=t('שאל אותי','Ask me');
+  el('chat-title').textContent=t('שאל אותי על המסמך','Ask me about the document');
+  el('chat-sub').textContent=t('אענה בשפה פשוטה','I\'ll explain simply');
+  el('chat-send').textContent=t('→','→');
+  el('chat-input').placeholder=t('למשל: כמה שילמתי ביטוח בריאות?','e.g. How much did I pay for insurance?');
+  el('chat-disc').textContent=t('לא ייעוץ פיננסי · מבוסס על המסמך שלך בלבד','Not financial advice · Based on your document only');
+  el('modal-title').textContent=t('שנה סוג מסמך','Change document type');
+  el('modal-cancel').textContent=t('ביטול','Cancel');
+  renderSlots();
+  if(S.files.length)renderChips();
+}
+
+function toggleWide(){
+  S.wide=!S.wide;
+  el('wrap').classList.toggle('wide',S.wide);
+  el('view-btn').textContent=S.wide?'📱':'🖥';
+}
+
+// ─── PROGRESS ───────────────────────────────────────────────────────────────
+function renderProgress(active){
+  var labels=S.lang==='he'?LHE:LEN;
+  var idx=SCREENS.indexOf(active||'s-welcome');
+  var h='';
+  for(var i=0;i<labels.length;i++){
+    var done=i<idx,on=i===idx;
+    h+='<div class="pstep"><div class="pstep-circle'+(done?' done':on?' on':'')+'">'+
+       (done?'✓':(i+1))+'</div><div class="pstep-label'+(on?' on':'')+'">'+labels[i]+'</div></div>';
+    if(i<labels.length-1)h+='<div class="pline'+(i<idx?' on':'')+'"></div>';
+  }
+  el('prog-steps').innerHTML=h;
+}
+
+function goTo(id){
+  SCREENS.forEach(function(s){el(s).classList.toggle('active',s===id);});
+  el('chat-fab').classList.toggle('on',id==='s-dash');
+  if(id!=='s-dash'){el('chat-panel').classList.remove('on');S.chatOpen=false;}
+  renderProgress(id);
+  window.scrollTo(0,0);
+}
+
+// ─── UPLOAD ─────────────────────────────────────────────────────────────────
+function renderSlots(){
+  var h='';
+  for(var i=0;i<5;i++){
+    if(i<S.files.length){
+      var n=S.files[i].name.replace('.pdf','');
+      var sh=n.length>8?n.substring(0,8)+'…':n;
+      h+='<div class="uslot filled" title="'+S.files[i].name+'"><span class="slot-num">'+(i+1)+'</span><span class="slot-name">'+sh+'</span></div>';
+    }else{
+      h+='<div class="uslot">'+(i===0?'📄':'')+'</div>';
+    }
+  }
+  el('upload-slots').innerHTML=h;
+}
+
+function handleDrop(e){e.preventDefault();el('uzone').classList.remove('drag');addFiles(e.dataTransfer.files);}
+
+function addFiles(fl){
+  for(var i=0;i<fl.length;i++){
+    if(S.files.length>=5)break;
+    var f=fl[i];
+    if(f.type!=='application/pdf'){alert(t('הקובץ "'+f.name+'" אינו PDF','File "'+f.name+'" is not a PDF'));continue;}
+    if(!S.files.find(function(x){return x.name===f.name;}))S.files.push(f);
+  }
+  renderSlots();renderChips();
+}
+
+function removeFile(i){S.files.splice(i,1);renderSlots();renderChips();}
+
+function renderChips(){
+  el('chips').innerHTML=S.files.map(function(f,i){
+    return '<span class="chip"><span class="chip-x" onclick="removeFile('+i+')">×</span>'+f.name+'</span>';
+  }).join('');
+  var btn=el('go-btn');
+  var n=S.files.length;
+  btn.style.display=n?'block':'none';
+  btn.textContent=t('זהה '+n+' מסמכ'+(n!==1?'ים':'')+ ' ←','Identify '+n+' document'+(n!==1?'s':'')+' →');
+}
+
+// ─── STEP 1: IDENTIFY ────────────────────────────────────────────────────────
+function startIdentify(){
+  goTo('s-identify');
+  S.b64s=[];S.types=[];S.results=new Array(S.files.length).fill(null);S.cur=0;S.curPerson=0;S.chat=[];
+  Promise.all(S.files.map(toB64)).then(function(b64s){S.b64s=b64s;return identifyNext(0);});
+}
+
+function identifyNext(i){
+  if(i>=S.files.length){
+    el('id-fill').style.width='100%';
+    return sleep(400).then(function(){renderConfirm();goTo('s-confirm');});
+  }
+  el('id-title').textContent=t('קורא מסמך '+(i+1)+' מתוך '+S.files.length+'...','Reading document '+(i+1)+' of '+S.files.length+'...');
+  el('id-step').textContent=S.files[i].name;
+  el('id-fill').style.width=Math.round((i/S.files.length)*100)+'%';
+
+  return callAI([
+    {type:'document',source:{type:'base64',media_type:'application/pdf',data:S.b64s[i]}},
+    {type:'text',text:'You are CashPilot. Identify this Israeli financial document.\nChoose ONE type from: '+TYPES.join(' | ')+'\nAlso: does this document cover MULTIPLE PEOPLE (e.g. family insurance policy where each person has a different premium)? List their names if yes.\nReply ONLY valid JSON: {"type":"exact type from list","company":"company name","people":["name1","name2"] or []}'}
+  ],250).then(function(raw){
+    var p=safeJSON(raw)||{};
+    S.types[i]=p.type||TYPES[0];
+    S.results[i]={_company:p.company||'',_people:p.people||[]};
+  }).catch(function(){
+    S.types[i]=TYPES[0];S.results[i]={_company:'',_people:[]};
+  }).then(function(){return identifyNext(i+1);});
+}
+
+// ─── STEP 2: CONFIRM ────────────────────────────────────────────────────────
+function renderConfirm(){
+  el('confirm-cards').innerHTML=S.files.map(function(f,i){
+    return '<div class="confirm-card" id="cc-'+i+'">'
+      +'<div class="confirm-file">📄 '+f.name+'</div>'
+      +'<div style="margin-bottom:12px;"><div class="confirm-type-badge" id="ct-'+i+'">📋 '+S.types[i]+'</div></div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;">'
+      +'<button class="confirm-yes" onclick="confirmType('+i+')" id="yes-'+i+'">'+t('✓ כן, נכון','✓ Yes, correct')+'</button>'
+      +'<button class="confirm-no" onclick="toggleSel('+i+')">'+t('לא, שנה','No, change')+'</button>'
+      +'</div>'
+      +'<div id="tsel-'+i+'" style="display:none;margin-top:12px;">'
+      +'<p style="font-size:12px;color:var(--text2);margin-bottom:8px;">'+t('בחר סוג נכון:','Select correct type:')+'</p>'
+      +'<div class="type-list">'+TYPES.map(function(tp){
+        return '<button class="type-opt'+(S.types[i]===tp?' on':'')+'" onclick="selType('+i+',\''+tp.replace(/'/g,"\\'")+'\')">'+tp+'</button>';
+      }).join('')+'</div></div></div>';
+  }).join('');
+}
+
+function confirmType(i){
+  S.results[i]=Object.assign({},S.results[i],{_confirmed:true});
+  el('cc-'+i).classList.add('confirmed');
+  el('yes-'+i).textContent=t('✓ אושר','✓ Confirmed');
+  el('tsel-'+i).style.display='none';
+}
+function toggleSel(i){var e=el('tsel-'+i);e.style.display=e.style.display==='none'?'block':'none';}
+function selType(i,type){
+  S.types[i]=type;
+  el('ct-'+i).textContent='📋 '+type;
+  el('tsel-'+i).style.display='none';
+  document.querySelectorAll('#tsel-'+i+' .type-opt').forEach(function(b){b.classList.toggle('on',b.textContent===type);});
+  confirmType(i);
+}
+
+// ─── STEP 3: ANALYZE ─────────────────────────────────────────────────────────
+function startAnalyze(){
+  goTo('s-analyze');
+  S.results=new Array(S.files.length).fill(null);
+  analyzeNext(0);
+}
+
+function analyzeNext(i){
+  if(i>=S.files.length){
+    el('an-fill').style.width='100%';
+    return sleep(500).then(function(){buildDash();goTo('s-dash');});
+  }
+  el('an-title').textContent=t('מנתח מסמך '+(i+1)+' מתוך '+S.files.length+'...','Analyzing document '+(i+1)+' of '+S.files.length+'...');
+  el('an-step').textContent=S.files[i].name+' — '+S.types[i];
+  el('an-fill').style.width=Math.round((i/S.files.length)*100)+'%';
+
+  var hint=HINTS[S.types[i]]||'Extract all key financial data.';
+  var lang=S.lang==='he'
+    ?'Respond in Hebrew (עברית פשוטה וברורה). All labels and values must be in Hebrew.'
+    :'Respond in English ONLY. Translate ALL Hebrew content — names, terms, labels — to English.';
+
+  var prompt='You are CashPilot analyzing "'+S.files[i].name+'" ('+S.types[i]+').\n'
+    +'EXTRACTION FOCUS: '+hint+'\n'
+    +'MULTI-PERSON: If this document covers multiple people (e.g. family policy, husband+wife each paying different amounts), you MUST create one entry per person in the people array.\n'
+    +'Extract ONLY real data from this document. Do not invent numbers.\n'
+    +lang+'\n'
+    +'Reply ONLY this JSON, no markdown:\n'
+    +'{"company":"string","people":[{"name":"string","metrics":[{"label":"string","value":"string"}],"breakdown":[{"label":"string","amount":0}],"coverages":[{"label":"string","status":"yes|no|partial","detail":"string"}],"insights":[{"text":"string","type":"warning|tip|info"}]}]}\n'
+    +'Rules:\n'
+    +'- metrics: 4-6 key figures with real values from the document\n'
+    +'- breakdown: cost breakdown items with real amounts ([] if not applicable)\n'
+    +'- coverages: 8-12 items — what IS and ISN\'T covered (sort: yes first, partial, no last)\n'
+    +'- insights: 8-12 specific observations with real numbers from the document\n'
+    +'- insights types: tip=money saving advice, warning=something needs attention, info=neutral fact\n'
+    +'- IMPORTANT for life insurance: include premium escalation as an insight\n'
+    +'- IMPORTANT for home insurance: explicitly note if contents (תכולה) coverage is missing\n'
+    +'- All text in '+(S.lang==='he'?'Hebrew':'English');
+
+  return callAI([
+    {type:'document',source:{type:'base64',media_type:'application/pdf',data:S.b64s[i]}},
+    {type:'text',text:prompt}
+  ],4000).then(function(raw){
+    var p=safeJSON(raw);
+    if(p&&p.people&&p.people.length){
+      p.people=p.people.map(function(x){
+        return {name:x.name||t('כולם','All'),metrics:Array.isArray(x.metrics)?x.metrics:[],breakdown:Array.isArray(x.breakdown)?x.breakdown:[],coverages:Array.isArray(x.coverages)?x.coverages:[],insights:Array.isArray(x.insights)?x.insights:[]};
+      });
+      S.results[i]=p;
+    }else if(p){
+      S.results[i]={company:p.company||'',people:[{name:t('כולם','All'),metrics:Array.isArray(p.metrics)?p.metrics:[],breakdown:Array.isArray(p.breakdown)?p.breakdown:[],coverages:Array.isArray(p.coverages)?p.coverages:[],insights:Array.isArray(p.insights)?p.insights:[]}]};
+    }else{
+      S.results[i]={company:'',people:[{name:t('כולם','All'),metrics:[],breakdown:[],coverages:[],insights:[{text:t('לא הצלחנו לנתח. נסה שוב.','Could not analyze. Try again.'),type:'warning'}]}]};
+    }
+  }).catch(function(e){
+    console.error(e);
+    S.results[i]={company:'',people:[{name:t('כולם','All'),metrics:[],breakdown:[],coverages:[],insights:[{text:t('שגיאה בניתוח. בדוק חיבור אינטרנט ונסה שוב.','Analysis error. Check your connection and try again.'),type:'warning'}]}]};
+  }).then(function(){return analyzeNext(i+1);});
+}
+
+// ─── DASHBOARD ───────────────────────────────────────────────────────────────
+function buildDash(){
+  S.cur=0;S.curPerson=0;
+  var sw=el('pdf-sw');
+  sw.innerHTML=S.files.length>1?S.files.map(function(f,i){
+    return '<button class="pdf-btn'+(i===0?' on':'')+'" id="psw-'+i+'" onclick="switchDoc('+i+')">'+f.name.replace('.pdf','').substring(0,22)+'</button>';
+  }).join(''):'';
+  renderDoc(0);
+}
+
+function switchDoc(i){
+  document.querySelectorAll('.pdf-btn').forEach(function(b,j){b.classList.toggle('on',j===i);});
+  S.cur=i;S.curPerson=0;S.chat=[];
+  el('chat-msgs').innerHTML='';
+  renderDoc(i);
+}
+
+function renderDoc(i){
+  var data=S.results[i];
+  el('type-badge').textContent=S.types[i]||'—';
+  el('company-name').textContent=(data&&data.company)||'';
+  if(!data||!data.people||!data.people.length){
+    el('dash').innerHTML='<p style="color:var(--text2);padding:24px 0;text-align:center;">'+t('לא ניתן לטעון נתונים','Could not load data')+'</p>';
+    return;
+  }
+  var people=data.people;
+  var pgrid=el('people-grid');
+  if(people.length>1){
+    pgrid.style.display='grid';
+    pgrid.innerHTML=people.map(function(p){
+      var pm=p.metrics&&p.metrics.find(function(m){
+        var l=(m.label||'').toLowerCase();
+        return l.indexOf('חודש')>-1||l.indexOf('month')>-1||l.indexOf('פרמיה')>-1||l.indexOf('premium')>-1||l.indexOf('עלות')>-1||l.indexOf('cost')>-1;
+      });
+      var amt=pm?pm.value:(p.metrics&&p.metrics[0]?p.metrics[0].value:'—');
+      var lbl=pm?pm.label:t('תשלום חודשי','Monthly payment');
+      return '<div class="person-card"><div class="person-card-icon">👤</div><div class="person-card-name">'+p.name+'</div><div class="person-card-amount">'+amt+'</div><div class="person-card-label">'+lbl+'</div></div>';
+    }).join('');
+  }else{pgrid.style.display='none';}
+  renderPersonData(data,0);
+}
+
+function renderPersonData(data,idx){
+  var type=S.types[S.cur];
+  var fname=S.files[S.cur].name.replace('.pdf','');
+  var person=data.people[idx]||data.people[0];
+  if(!person){el('dash').innerHTML='';return;}
+
+  var metrics=person.metrics||[];
+  var breakdown=person.breakdown||[];
+  var coverages=person.coverages||[];
+  var insights=person.insights||[];
+  var score=calcScore(coverages);
+  var h='';
+
+  // Health score
+  if(coverages.length){
+    var sc=scoreClass(score);
+    h+='<div class="health-card '+sc+'">'
+      +'<div class="health-left"><div class="health-num">'+score+'</div><div class="health-label">'+scoreLbl(score)+'</div></div>'
+      +'<div class="health-right"><div class="health-title">'+t('ציון בריאות פיננסית','Financial Health Score')+'</div>'
+      +'<div class="health-bar"><div class="health-fill" style="width:'+score+'%"></div></div>'
+      +'<div class="health-sub">'+t('מבוסס על '+coverages.length+' כיסויים','Based on '+coverages.length+' coverages')+'</div>'
+      +'</div></div>';
+  }
+
+  // Metrics
+  if(metrics.length){
+    h+='<div class="section-hdr"><div class="section-title">'+t('המספרים שלך','Your Key Numbers')+'</div><div class="section-sub">'+t('נתונים מרכזיים מהמסמך','Main figures from the document')+'</div></div>';
+    h+='<div class="metrics-grid">'+metrics.map(function(m){
+      return '<div class="metric-card"><div class="metric-label">'+m.label+'</div><div class="metric-value">'+m.value+'</div></div>';
+    }).join('')+'</div>';
+  }
+
+  // Breakdown
+  if(breakdown.length&&breakdown.some(function(x){return x.amount>0;})){
+    var mx=Math.max.apply(null,breakdown.map(function(x){return x.amount||0;}));
+    if(mx>0){
+      h+='<div class="section-hdr"><div class="section-title">'+t('פירוט תשלומים','Payment Breakdown')+'</div></div>';
+      h+='<div style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--sh);">';
+      h+=breakdown.map(function(r){
+        return '<div class="brow"><span class="blbl">'+r.label+'</span><div class="btr"><div class="bfill" style="width:'+Math.round((r.amount||0)/mx*100)+'%"></div></div><span class="bamt">'+fmt(r.amount)+'</span></div>';
+      }).join('');
+      h+='</div>';
+    }
+  }
+
+  // Missing (not covered)
+  var notCov=coverages.filter(function(c){return c.status==='no';});
+  if(notCov.length){
+    h+='<div class="section-hdr"><div class="section-title">'+t('מה חסר לך','What You\'re Missing')+'</div><div class="section-sub">'+t('פריטים שאינם מכוסים — שים לב!','Items NOT covered — pay attention!')+'</div></div>';
+    h+='<div class="missing-box"><div class="missing-title">❌ '+t('לא מכוסה:','Not covered:')+'</div>';
+    h+=notCov.map(function(c){
+      return '<div class="missing-item">❌ <div><div style="font-weight:700;">'+c.label+'</div>'+(c.detail?'<div style="font-size:11px;opacity:.8;">'+c.detail+'</div>':'')+'</div></div>';
+    }).join('');
+    h+='</div>';
+  }
+
+  // Coverages
+  if(coverages.length){
+    h+='<div class="section-hdr"><div class="section-title">'+t('מה מכוסה אצלך','Your Coverage')+'</div><div class="section-sub">'+t('ירוק = מכוסה · כתום = חלקי · אדום = לא מכוסה','Green = covered · Orange = partial · Red = not covered')+'</div></div>';
+    h+='<div class="cov-card">';
+    h+=coverages.map(function(c){
+      var cls=c.status==='no'?' not-covered':'';
+      var badge=c.status==='yes'?'<span class="cy">'+t('מכוסה ✓','Covered ✓')+'</span>':c.status==='no'?'<span class="cn">'+t('לא מכוסה ✗','Not Covered ✗')+'</span>':'<span class="cpar">'+t('חלקי ~','Partial ~')+'</span>';
+      return '<div class="crow'+cls+'"><div><div class="cov-label">'+c.label+'</div>'+(c.detail?'<div class="cov-detail'+(c.status==='no'?' danger':'')+'">' +c.detail+'</div>':'')+'</div>'+badge+'</div>';
+    }).join('');
+    h+='</div>';
+  }
+
+  // Insights
+  if(insights.length){
+    var order={tip:0,info:1,warning:2};
+    var sorted=insights.slice().sort(function(a,b){return (order[a.type]||1)-(order[b.type]||1);});
+    h+='<div class="section-hdr"><div class="section-title">'+t('מה חשוב שתדע','What You Should Know')+'</div><div class="section-sub">'+t('תובנות ספציפיות מהמסמך שלך','Specific insights from your document')+'</div></div>';
+    h+=sorted.map(function(x){
+      return '<div class="insight-card '+x.type+'"><div class="insight-icon">'+(ICONS[x.type]||'ℹ️')+'</div><div><div class="insight-text">'+x.text+'</div><div class="insight-source">'+t('מתוך:','From:')+' '+type+' — '+fname+'</div><button class="flag-btn" onclick="this.textContent=\''+t('תודה ✓','Thanks ✓')+'\'">'+t('לא נכון? דווח','Incorrect? Report')+'</button></div></div>';
+    }).join('');
+  }
+
+  el('dash').innerHTML=h;
+}
+
+// ─── MODAL ────────────────────────────────────────────────────────────────────
+function openModal(){
+  var i=S.cur;
+  el('modal-file').textContent=S.files[i].name;
+  el('modal-grid').innerHTML=TYPES.map(function(tp){
+    return '<button class="modal-type-btn'+(S.types[i]===tp?' on':'')+'" onclick="changeType('+i+',\''+tp.replace(/'/g,"\\'")+'\')">'+tp+'</button>';
+  }).join('');
+  el('modal').classList.add('on');
+}
+function closeModal(){el('modal').classList.remove('on');}
+
+function changeType(i,type){
+  closeModal();S.types[i]=type;el('type-badge').textContent=type;
+  el('dash').innerHTML='<div class="load-wrap"><div class="load-spinner"><div class="load-dot"></div><div class="load-dot"></div><div class="load-dot"></div></div><div class="load-title">'+t('מנתח מחדש...','Re-analyzing...')+'</div></div>';
+  var hint=HINTS[type]||'';
+  var lang=S.lang==='he'?'Language: Hebrew.':'Language: English ONLY, translate everything.';
+  callAI([
+    {type:'document',source:{type:'base64',media_type:'application/pdf',data:S.b64s[i]}},
+    {type:'text',text:'Analyze "'+type+'" document. Focus: '+hint+'\nReply ONLY JSON: {"company":"string","people":[{"name":"string","metrics":[{"label":"string","value":"string"}],"breakdown":[{"label":"string","amount":0}],"coverages":[{"label":"string","status":"yes|no|partial","detail":"string"}],"insights":[{"text":"string","type":"warning|tip|info"}]}]}\ncoverages:8-12, insights:8-12. '+lang}
+  ],4000).then(function(raw){
+    var p=safeJSON(raw);
+    S.results[i]=(p&&p.people)?p:{company:'',people:[{name:t('כולם','All'),metrics:[],breakdown:[],coverages:[],insights:[]}]};
+  }).catch(function(){S.results[i]=null;}).then(function(){S.curPerson=0;renderDoc(i);});
+}
+
+// ─── CHAT ────────────────────────────────────────────────────────────────────
+function toggleChat(){S.chatOpen=!S.chatOpen;el('chat-panel').classList.toggle('on',S.chatOpen);}
+
+function sendChat(){
+  var inp=el('chat-input');
+  var q=inp.value.trim();if(!q)return;
+  inp.value='';
+  var msgs=el('chat-msgs');
+  var uid='cm'+Date.now();
+  msgs.innerHTML+='<div class="chat-msg user">'+q+'</div><div class="chat-msg ai" id="'+uid+'">'+t('חושב...','Thinking...')+'</div>';
+  msgs.scrollTop=9999;
+  S.chat.push({role:'user',content:q});
+  var i=S.cur;
+  var prev=S.chat.slice(0,-1).slice(-8).map(function(m){return (m.role==='user'?'Q: ':'A: ')+m.content;}).join('\n');
+  var lang=S.lang==='he'?'Answer in simple clear Hebrew. Translate any English terms to Hebrew.':'Answer in simple clear English. Translate all Hebrew to English.';
+  var prompt='You are CashPilot. Document: "'+S.files[i].name+'", Type: "'+S.types[i]+'".\n'+lang+(prev?'\n\nPrevious:\n'+prev:'')+'\n\nQuestion: '+q;
+  callAI([
+    {type:'document',source:{type:'base64',media_type:'application/pdf',data:S.b64s[i]}},
+    {type:'text',text:prompt}
+  ],1000).then(function(ans){
+    el(uid).textContent=ans;
+    S.chat.push({role:'assistant',content:ans});
+  }).catch(function(){el(uid).textContent=t('מצטער, שגיאה. נסה שוב.','Sorry, error. Try again.');
+  }).then(function(){msgs.scrollTop=9999;});
+}
+
+// ─── EXPORT & RESET ──────────────────────────────────────────────────────────
+function doExport(){
+  var i=S.cur;var d=S.results[i]||{};
+  var person=(d.people&&d.people[S.curPerson])||{};
+  var ins=person.insights||[];var covs=person.coverages||[];
+  var txt='CashPilot — '+S.types[i]+'\n'+S.files[i].name+'\nנוצר: '+new Date().toLocaleDateString('he-IL')+'\n\n'
+    +t('תובנות:','Insights:')+'\n'+ins.map(function(x,n){return (n+1)+'. '+x.text;}).join('\n')
+    +'\n\n'+t('כיסויים:','Coverages:')+'\n'+covs.map(function(c){return '• '+c.label+': '+(c.status==='yes'?t('מכוסה','Covered'):c.status==='no'?t('לא מכוסה','Not covered'):t('חלקי','Partial'));}).join('\n')
+    +'\n\n'+t('* לא ייעוץ פיננסי.','* Not financial advice.');
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain;charset=utf-8'}));
+  a.download='cashpilot_'+S.types[i].replace(/\//g,'-')+'.txt';
+  a.click();
+}
+
+function doReset(){
+  Object.assign(S,{files:[],b64s:[],types:[],results:[],cur:0,curPerson:0,chat:[],chatOpen:false});
+  el('chips').innerHTML='';el('go-btn').style.display='none';
+  el('id-fill').style.width='0%';el('an-fill').style.width='0%';
+  el('chat-msgs').innerHTML='';
+  renderSlots();goTo('s-upload');
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+renderProgress('s-welcome');
+renderSlots();
+setLang('he');
+</script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CashPilot</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <div class="hdr">
+    <span class="logo">CashPilot</span>
+    <div class="hdr-btns">
+      <button class="langbtn on" id="heb-btn" onclick="setLang('he')">עב</button>
+      <button class="langbtn" id="en-btn" onclick="setLang('en')">EN</button>
+      <button class="viewbtn" onclick="toggleWide()" id="view-btn">🖥</button>
+    </div>
+  </div>
+  <div class="progress-steps" id="prog-steps"></div>
+
+  <!-- WELCOME -->
+  <div class="screen active" id="s-welcome">
+    <div class="welcome-hero">
+      <div class="welcome-icon">💰</div>
+      <div class="welcome-title" id="w-title"></div>
+      <div class="welcome-sub" id="w-sub"></div>
+      <div class="welcome-examples">
+        <span class="ex-chip">ביטוח בריאות</span>
+        <span class="ex-chip">תלוש שכר</span>
+        <span class="ex-chip">חשבון בנק</span>
+        <span class="ex-chip">משכנתא</span>
+        <span class="ex-chip">פנסיה</span>
+        <span class="ex-chip">ועוד...</span>
+      </div>
+      <button class="btn-big" onclick="goTo('s-upload')" id="w-btn"></button>
+      <div style="margin-top:14px;font-size:12px;color:#888780;" id="w-privacy"></div>
+    </div>
+  </div>
+
+  <!-- UPLOAD -->
+  <div class="screen" id="s-upload">
+    <h2 style="margin-bottom:6px;font-size:20px;" id="u-title"></h2>
+    <p style="font-size:13px;color:#5f5e5a;margin-bottom:20px;" id="u-sub"></p>
+    <div class="upload-slots" id="upload-slots"></div>
+    <div class="tip-box">💡 <strong id="u-tip-title"></strong><br><span id="u-tip-body"></span></div>
+    <div class="uzone" id="uzone" onclick="document.getElementById('fi').click()"
+      ondragover="event.preventDefault();this.classList.add('drag')"
+      ondragleave="this.classList.remove('drag')"
+      ondrop="handleDrop(event)">
+      <div style="font-size:36px;margin-bottom:10px;">📄</div>
+      <p style="font-size:15px;font-weight:600;margin-bottom:6px;" id="u-zone-title"></p>
+      <p style="font-size:12px;color:#888780;" id="u-zone-sub"></p>
+    </div>
+    <input type="file" id="fi" accept=".pdf" multiple style="display:none" onchange="addFiles(this.files)">
+    <div id="chips" style="margin-bottom:12px;"></div>
+    <button class="btn-big" id="go-btn" onclick="startIdentify()" style="display:none;"></button>
+    <div class="disc" id="u-disc"></div>
+  </div>
+
+  <!-- IDENTIFYING -->
+  <div class="screen" id="s-identify">
+    <div class="load-wrap">
+      <div class="load-icon">🔍</div>
+      <div class="load-title" id="id-title"></div>
+      <div class="load-sub" id="id-sub">זה לוקח כמה שניות</div>
+      <div class="pbar"><div class="pfill" id="id-fill" style="width:0%"></div></div>
+      <div class="load-step" id="id-step"></div>
+    </div>
+  </div>
+
+  <!-- CONFIRM -->
+  <div class="screen" id="s-confirm">
+    <h2 style="margin-bottom:6px;font-size:20px;" id="cf-title"></h2>
+    <p style="font-size:13px;color:#5f5e5a;margin-bottom:20px;" id="cf-sub"></p>
+    <div id="confirm-cards"></div>
+    <button class="btn-big" id="cf-btn" onclick="startAnalyze()"></button>
+  </div>
+
+  <!-- ANALYZING -->
+  <div class="screen" id="s-analyze">
+    <div class="load-wrap">
+      <div class="load-icon">📊</div>
+      <div class="load-title" id="an-title"></div>
+      <div class="load-sub" id="an-sub">מחלץ מידע</div>
+      <div class="pbar"><div class="pfill" id="an-fill" style="width:0%"></div></div>
+      <div class="load-step" id="an-step"></div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="screen" id="s-dash">
+    <div class="pdf-switcher" id="pdf-sw"></div>
+    <div style="margin-bottom:4px;"><span class="doc-type-badge" id="type-badge">—</span></div>
+    <div style="font-size:12px;color:#888780;margin-bottom:4px;" id="company-name"></div>
+    <a class="change-type-link" id="change-link" onclick="openModal()"></a>
+    <div class="people-grid" id="people-grid" style="display:none;"></div>
+    <div id="dash"></div>
+    <div style="display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;">
+      <button class="btn-sec" onclick="doReset()" id="reset-btn"></button>
+      <button class="btn-sec" onclick="doExport()">שמור סיכום ↓</button>
+    </div>
+    <div class="disc" id="dash-disc"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal" onclick="if(event.target.id==='modal')closeModal()">
+  <div class="modal-inner">
+    <p style="font-size:16px;font-weight:700;margin-bottom:4px;" id="modal-title"></p>
+    <p style="font-size:12px;color:#5f5e5a;" id="modal-file"></p>
+    <div class="modal-type-grid" id="modal-grid"></div>
+    <button class="btn-sec" style="width:100%;margin-top:14px;" onclick="closeModal()" id="modal-cancel"></button>
+  </div>
+</div>
+
+<!-- CHAT -->
+<button class="chat-fab" id="chat-fab" onclick="toggleChat()">
+  <span>💬</span><span id="chat-fab-lbl"></span>
+</button>
+<div class="chat-panel" id="chat-panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <p style="font-size:14px;font-weight:700;" id="chat-title"></p>
+      <p style="font-size:11px;color:#888780;" id="chat-sub"></p>
+    </div>
+    <button style="background:none;border:none;font-size:22px;cursor:pointer;color:#888780;" onclick="toggleChat()">×</button>
+  </div>
+  <div class="chat-msgs" id="chat-msgs"></div>
+  <div class="chat-input-row">
+    <input class="chat-input" id="chat-input" onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="btn-big" style="width:auto;padding:10px 18px;font-size:13px;border-radius:12px;" onclick="sendChat()" id="chat-send"></button>
+  </div>
+  <div class="disc" id="chat-disc"></div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "id": "msg_identify_payslip",
+  "type": "message",
+  "role": "assistant",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"type\":\"תלוש שכר\",\"company\":\"טכנולוגיה בע\\\"מ\",\"people\":[]}"
+    }
+  ],
+  "model": "claude-sonnet-4-20250514",
+  "stop_reason": "end_turn"
+}

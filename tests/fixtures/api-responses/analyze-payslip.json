@@ -1,0 +1,13 @@
+{
+  "id": "msg_analyze_payslip",
+  "type": "message",
+  "role": "assistant",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"company\":\"טכנולוגיה בע\\\"מ\",\"people\":[{\"name\":\"ישראל ישראלי\",\"metrics\":[{\"label\":\"שכר ברוטו\",\"value\":\"₪18,500\"},{\"label\":\"שכר נטו\",\"value\":\"₪13,242\"},{\"label\":\"חודש שכר\",\"value\":\"מרץ 2026\"},{\"label\":\"ניכויים סה\\\"כ\",\"value\":\"₪5,258\"}],\"breakdown\":[{\"label\":\"שכר בסיס\",\"amount\":17300},{\"label\":\"בונוס\",\"amount\":1200},{\"label\":\"מס הכנסה\",\"amount\":2890},{\"label\":\"ביטוח לאומי\",\"amount\":1024},{\"label\":\"פנסיה עובד\",\"amount\":1107}],\"coverages\":[{\"label\":\"פנסיה\",\"status\":\"yes\",\"detail\":\"6% עובד + 6.5% מעביד\"},{\"label\":\"קרן השתלמות\",\"status\":\"yes\",\"detail\":\"2.5% + 7.5%\"},{\"label\":\"אש\\\"ל\",\"status\":\"no\",\"detail\":\"לא כלול\"}],\"insights\":[{\"text\":\"שיעור מס אפקטיבי 15.6% — נמוך יחסית\",\"type\":\"info\"},{\"text\":\"קרן השתלמות: עוד 4 שנים ₪75,000 נזיל\",\"type\":\"tip\"}]}]}"
+    }
+  ],
+  "model": "claude-sonnet-4-20250514",
+  "stop_reason": "end_turn"
+}

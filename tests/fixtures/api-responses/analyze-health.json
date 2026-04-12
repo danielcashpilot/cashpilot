@@ -1,0 +1,13 @@
+{
+  "id": "msg_analyze_health",
+  "type": "message",
+  "role": "assistant",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"company\":\"פניקס ביטוח\",\"people\":[{\"name\":\"ריסה אדל\",\"metrics\":[{\"label\":\"פרמיה חודשית\",\"value\":\"₪127.55\"},{\"label\":\"מספר פוליסה\",\"value\":\"312-4891-22\"}],\"breakdown\":[{\"label\":\"ניתוחים\",\"amount\":48.20},{\"label\":\"תרופות\",\"amount\":32.10}],\"coverages\":[{\"label\":\"ניתוחים בישראל\",\"status\":\"yes\",\"detail\":\"כיסוי מלא עד ₪250,000\"},{\"label\":\"ניתוחים בחו\\\"ל\",\"status\":\"yes\",\"detail\":\"עד $50,000\"},{\"label\":\"תרופות מיוחדות\",\"status\":\"yes\",\"detail\":\"עד ₪50,000 לשנה\"},{\"label\":\"טיפולי שיניים\",\"status\":\"partial\",\"detail\":\"בסיסי בלבד\"},{\"label\":\"ראייה ואופטיקה\",\"status\":\"no\",\"detail\":\"לא כלול\"},{\"label\":\"רפואה משלימה\",\"status\":\"no\",\"detail\":\"לא כלול\"}],\"insights\":[{\"text\":\"פרמיה גבוהה יחסית לכיסויים\",\"type\":\"warning\"},{\"text\":\"כיסוי ניתוחים מצוין\",\"type\":\"info\"}]},{\"name\":\"דניאל אדל\",\"metrics\":[{\"label\":\"פרמיה חודשית\",\"value\":\"₪45.38\"},{\"label\":\"מספר פוליסה\",\"value\":\"312-4891-22\"}],\"breakdown\":[{\"label\":\"ניתוחים\",\"amount\":18.50}],\"coverages\":[{\"label\":\"ניתוחים בישראל\",\"status\":\"yes\",\"detail\":\"כיסוי מלא\"},{\"label\":\"ראייה\",\"status\":\"no\",\"detail\":\"לא כלול\"}],\"insights\":[{\"text\":\"פרמיה נמוכה לגיל\",\"type\":\"tip\"}]}]}"
+    }
+  ],
+  "model": "claude-sonnet-4-20250514",
+  "stop_reason": "end_turn"
+}

@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CashPilot — Demo</title>
+<style>
+:root{
+  --green:#15803d;--green-l:#dcfce7;--green-d:#14532d;
+  --bg:#fafaf9;--card:#ffffff;
+  --text:#1c1917;--text2:#78716c;--border:#e7e5e4;
+  --red:#dc2626;--red-l:#fef2f2;
+  --orange:#c2410c;--orange-l:#fff7ed;
+  --blue:#1d4ed8;--blue-l:#eff6ff;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:560px;margin:0 auto;padding:20px 16px 60px;transition:max-width .3s;}
+.wrap.wide{max-width:960px;}
+.screen{display:none;}.screen.active{display:block;animation:fadeUp .22s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+.logo{font-size:17px;font-weight:900;color:var(--green-d);letter-spacing:-.4px;display:flex;align-items:center;gap:7px;}
+.logo-icon{width:28px;height:28px;background:var(--green-d);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.hdr-btns{display:flex;gap:6px;}
+.langbtn{font-size:11px;font-weight:700;padding:5px 12px;border:1.5px solid var(--border);border-radius:20px;cursor:pointer;background:var(--card);color:var(--text2);font-family:inherit;transition:all .15s;letter-spacing:.3px;}
+.langbtn.on{background:var(--green-d);color:#fff;border-color:var(--green-d);}
+.viewbtn{font-size:13px;padding:5px 10px;border:1.5px solid var(--border);border-radius:20px;cursor:pointer;background:var(--card);color:var(--text2);font-family:inherit;}
+
+/* PROGRESS */
+.progress-steps{display:flex;align-items:center;justify-content:center;margin-bottom:28px;}
+.pstep{display:flex;flex-direction:column;align-items:center;gap:5px;}
+.pstep-circle{width:28px;height:28px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--text2);transition:all .3s;}
+.pstep-circle.on{background:var(--green-d);color:#fff;box-shadow:0 0 0 4px var(--green-l);}
+.pstep-circle.done{background:var(--green);color:#fff;}
+.pstep-label{font-size:9px;color:var(--text2);white-space:nowrap;font-weight:500;}
+.pstep-label.on{color:var(--green-d);font-weight:800;}
+.pline{width:28px;height:2px;background:var(--border);margin-bottom:16px;}
+.pline.on{background:var(--green);}
+
+/* BUTTONS */
+.btn-primary{width:100%;padding:16px;font-size:15px;font-weight:800;border:none;border-radius:14px;cursor:pointer;font-family:inherit;background:var(--green-d);color:#fff;transition:all .15s;letter-spacing:-.1px;}
+.btn-primary:hover{background:#1a4d35;box-shadow:var(--sh-md);transform:translateY(-1px);}
+.btn-primary:active{transform:none;box-shadow:none;}
+.btn-sec{background:var(--card);color:var(--text);border:1.5px solid var(--border);font-size:13px;padding:10px 18px;border-radius:10px;cursor:pointer;font-family:inherit;font-weight:600;transition:all .15s;}
+.btn-sec:hover{border-color:var(--text2);}
+
+/* WELCOME */
+.welcome-hero{text-align:center;padding:12px 0 28px;}
+.welcome-badge{display:inline-flex;align-items:center;gap:6px;background:var(--green-l);color:var(--green-d);font-size:11px;font-weight:700;padding:5px 13px;border-radius:20px;margin-bottom:20px;letter-spacing:.4px;}
+.welcome-title{font-size:30px;font-weight:900;margin-bottom:12px;line-height:1.18;letter-spacing:-.6px;}
+.welcome-title em{color:var(--green);font-style:normal;}
+.welcome-sub{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:24px;}
+.wsteps{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:26px;}
+.wstep{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:15px 10px;text-align:center;box-shadow:var(--sh);}
+.wstep-icon{font-size:22px;margin-bottom:7px;}
+.wstep-title{font-size:11px;font-weight:800;color:var(--text);margin-bottom:2px;}
+.wstep-sub{font-size:10px;color:var(--text2);line-height:1.4;}
+.welcome-privacy{font-size:11px;color:var(--text2);margin-top:12px;display:flex;align-items:center;justify-content:center;gap:4px;}
+.demo-divider{display:flex;align-items:center;gap:10px;margin:18px 0;color:var(--text2);font-size:12px;}
+.demo-divider::before,.demo-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.btn-demo{width:100%;padding:14px;font-size:14px;font-weight:700;border:2px solid var(--green-d);border-radius:14px;cursor:pointer;font-family:inherit;background:transparent;color:var(--green-d);transition:all .15s;}
+.btn-demo:hover{background:var(--green-l);}
+
+/* LOADING */
+.load-wrap{text-align:center;padding:60px 0;}
+.load-spinner{display:flex;gap:7px;justify-content:center;margin-bottom:24px;}
+.load-dot{width:11px;height:11px;border-radius:50%;background:var(--green);animation:ldot 1.3s ease-in-out infinite;}
+.load-dot:nth-child(2){animation-delay:.18s;background:var(--green-d);}
+.load-dot:nth-child(3){animation-delay:.36s;}
+@keyframes ldot{0%,80%,100%{transform:scale(.7);opacity:.5;}40%{transform:scale(1.1);opacity:1;}}
+.load-title{font-size:18px;font-weight:800;margin-bottom:8px;}
+.load-sub{font-size:13px;color:var(--text2);margin-bottom:24px;}
+.pbar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;max-width:240px;margin:0 auto;}
+.pfill{height:100%;background:var(--green);border-radius:3px;transition:width .5s ease;}
+.load-step{font-size:12px;color:var(--text2);margin-top:10px;}
+
+/* DEMO BANNER */
+.demo-banner{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--green-d),#1a4d35);color:#fff;border-radius:14px;padding:12px 16px;margin-bottom:16px;font-size:12px;font-weight:700;}
+.demo-banner-icon{font-size:20px;flex-shrink:0;}
+.demo-banner-text{flex:1;line-height:1.5;}
+.demo-banner-sub{font-weight:400;opacity:.8;}
+
+/* DASHBOARD */
+.pdf-switcher{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.pdf-btn{padding:7px 16px;font-size:12px;border:1.5px solid var(--border);border-radius:20px;cursor:pointer;background:var(--card);color:var(--text2);font-family:inherit;transition:all .15s;white-space:nowrap;font-weight:700;}
+.pdf-btn.on{background:var(--green-d);color:#fff;border-color:var(--green-d);}
+.doc-type-badge{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;background:var(--blue-l);color:var(--blue);}
+.doc-company{font-size:12px;color:var(--text2);margin-top:3px;margin-bottom:2px;}
+.change-type-link{font-size:11px;color:var(--text2);cursor:pointer;text-decoration:underline;display:inline-block;margin-bottom:14px;}
+.disc{font-size:11px;color:var(--text2);padding:10px 14px;border-radius:10px;background:var(--bg);line-height:1.6;margin-top:14px;text-align:center;border:1px solid var(--border);}
+
+/* HEALTH SCORE */
+.health-card{background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:18px 20px;margin-bottom:16px;display:flex;align-items:center;gap:18px;box-shadow:var(--sh);}
+.health-left{text-align:center;min-width:72px;}
+.health-num{font-size:44px;font-weight:900;line-height:1;letter-spacing:-3px;}
+.health-label{font-size:11px;font-weight:800;margin-top:2px;}
+.health-right{flex:1;}
+.health-title{font-size:13px;font-weight:800;margin-bottom:6px;}
+.health-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px;}
+.health-fill{height:100%;border-radius:4px;transition:width 1.2s ease;}
+.health-sub{font-size:11px;color:var(--text2);}
+.score-g .health-num,.score-g .health-label{color:var(--green);}
+.score-g .health-fill{background:var(--green);}
+.score-o .health-num,.score-o .health-label{color:var(--orange);}
+.score-o .health-fill{background:var(--orange);}
+.score-r .health-num,.score-r .health-label{color:var(--red);}
+.score-r .health-fill{background:var(--red);}
+
+/* PEOPLE */
+.people-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px;}
+.person-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:16px;text-align:center;box-shadow:var(--sh);}
+.person-card-icon{font-size:28px;margin-bottom:8px;}
+.person-card-name{font-size:11px;color:var(--text2);margin-bottom:6px;font-weight:700;}
+.person-card-amount{font-size:28px;font-weight:900;color:var(--text);letter-spacing:-.5px;}
+.person-card-label{font-size:10px;color:var(--text2);margin-top:4px;}
+
+/* SECTIONS */
+.section-hdr{margin:22px 0 10px;}
+.section-title{font-size:13px;font-weight:800;color:var(--text);letter-spacing:-.1px;}
+.section-sub{font-size:11px;color:var(--text2);margin-top:2px;}
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px;}
+.metric-card{background:var(--card);border-radius:14px;padding:16px;border:1.5px solid var(--border);box-shadow:var(--sh);}
+.metric-label{font-size:11px;color:var(--text2);margin-bottom:6px;line-height:1.4;font-weight:500;}
+.metric-value{font-size:20px;font-weight:900;color:var(--text);letter-spacing:-.3px;}
+.brow{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.blbl{font-size:12px;color:var(--text2);min-width:110px;text-align:right;font-weight:500;}
+.btr{flex:1;height:7px;background:var(--border);border-radius:4px;overflow:hidden;}
+.bfill{height:100%;border-radius:4px;background:var(--blue);}
+.bamt{font-size:12px;font-weight:700;min-width:72px;text-align:left;}
+.cov-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--sh);}
+.crow{display:flex;justify-content:space-between;align-items:flex-start;padding:11px 16px;border-bottom:1px solid var(--bg);gap:12px;}
+.crow:last-child{border-bottom:none;}
+.crow.not-covered{background:var(--red-l);border-right:3px solid var(--red);}
+.cov-label{font-weight:600;color:var(--text);font-size:13px;}
+.cov-detail{font-size:11px;color:var(--text2);margin-top:2px;}
+.cov-detail.danger{color:var(--red);}
+.cy{color:var(--green);font-weight:800;font-size:11px;background:var(--green-l);padding:3px 8px;border-radius:6px;white-space:nowrap;}
+.cn{color:var(--red);font-weight:800;font-size:11px;background:var(--red-l);padding:3px 8px;border-radius:6px;white-space:nowrap;}
+.cpar{color:var(--orange);font-weight:800;font-size:11px;background:var(--orange-l);padding:3px 8px;border-radius:6px;white-space:nowrap;}
+.missing-box{background:var(--red-l);border:1.5px solid #fca5a5;border-radius:14px;padding:14px 16px;margin-bottom:4px;}
+.missing-title{font-size:12px;font-weight:800;color:var(--red);margin-bottom:10px;}
+.missing-item{font-size:12px;color:#991b1b;padding:5px 0;border-bottom:1px solid #fecaca;display:flex;align-items:flex-start;gap:8px;}
+.missing-item:last-child{border-bottom:none;}
+.insight-card{display:flex;gap:12px;align-items:flex-start;padding:13px 16px;border-radius:12px;margin-bottom:8px;line-height:1.6;border:1.5px solid transparent;}
+.insight-card.warning{background:var(--orange-l);color:#7c2d12;border-color:#fed7aa;}
+.insight-card.tip{background:var(--green-l);color:#14532d;border-color:#bbf7d0;}
+.insight-card.info{background:var(--blue-l);color:#1e3a8a;border-color:#bfdbfe;}
+.insight-icon{font-size:15px;flex-shrink:0;margin-top:2px;}
+.insight-text{font-size:12px;font-weight:500;line-height:1.6;}
+.insight-source{font-size:10px;opacity:.6;margin-top:4px;font-style:italic;}
+.flag-btn{font-size:10px;color:var(--text2);border:1px solid var(--border);border-radius:5px;padding:2px 7px;background:transparent;cursor:pointer;margin-top:5px;font-family:inherit;}
+
+/* CHAT */
+.chat-fab{position:fixed;bottom:24px;left:24px;background:var(--green-d);color:#fff;border:none;border-radius:50px;padding:12px 18px;font-size:13px;font-weight:700;cursor:pointer;display:none;align-items:center;gap:8px;z-index:200;font-family:inherit;box-shadow:var(--sh-md);}
+.chat-fab.on{display:flex;}
+.chat-panel{position:fixed;bottom:76px;left:16px;width:340px;max-width:calc(100vw - 32px);background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:18px;z-index:200;display:none;flex-direction:column;gap:10px;max-height:500px;box-shadow:var(--sh-md);}
+.chat-panel.on{display:flex;}
+.chat-header{display:flex;justify-content:space-between;align-items:center;}
+.chat-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2);line-height:1;}
+.chat-msgs{display:flex;flex-direction:column;gap:8px;overflow-y:auto;flex:1;min-height:80px;max-height:260px;}
+.chat-msg{padding:9px 13px;border-radius:12px;font-size:12px;line-height:1.6;max-width:90%;}
+.chat-msg.user{background:var(--green-d);color:#fff;align-self:flex-start;border-radius:12px 12px 12px 3px;}
+.chat-msg.ai{background:var(--bg);color:var(--text);align-self:flex-end;border-radius:12px 12px 3px 12px;border:1px solid var(--border);}
+.chat-input-row{display:flex;gap:8px;}
+.chat-input{flex:1;padding:9px 12px;font-size:13px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;background:var(--card);}
+.chat-input:focus{outline:none;border-color:var(--green);}
+.chat-send-btn{background:var(--green-d);color:#fff;border:none;border-radius:10px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+
+@media(max-width:480px){
+  .metrics-grid{grid-template-columns:1fr 1fr;}
+  .upload-slots{gap:5px;}
+  .wsteps{grid-template-columns:1fr 1fr;}
+  .welcome-title{font-size:26px;}
+  .health-num{font-size:36px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <div class="hdr">
+    <div class="logo">
+      <div class="logo-icon">💰</div>
+      CashPilot
+    </div>
+    <div class="hdr-btns">
+      <button class="langbtn on" id="heb-btn" onclick="setLang('he')">עב</button>
+      <button class="langbtn" id="en-btn" onclick="setLang('en')">EN</button>
+      <button class="viewbtn" onclick="toggleWide()" id="view-btn">🖥</button>
+    </div>
+  </div>
+  <div class="progress-steps" id="prog-steps"></div>
+
+  <!-- WELCOME -->
+  <div class="screen active" id="s-welcome">
+    <div class="welcome-hero">
+      <div class="welcome-badge" id="w-badge">✦ AI פיננסי ישראלי</div>
+      <div class="welcome-title" id="w-title">הבן את הכסף שלך<br><em>תוך 30 שניות</em></div>
+      <div class="welcome-sub" id="w-sub">העלה מסמכים פיננסיים וקבל ניתוח פשוט, ברור ומדויק — בלי חיבור לבנק.</div>
+      <div class="wsteps">
+        <div class="wstep"><div class="wstep-icon">📄</div><div class="wstep-title" id="ws1t">העלה</div><div class="wstep-sub" id="ws1s">עד 5 מסמכי PDF</div></div>
+        <div class="wstep"><div class="wstep-icon">🤖</div><div class="wstep-title" id="ws2t">AI מנתח</div><div class="wstep-sub" id="ws2s">מזהה ומחלץ הכל</div></div>
+        <div class="wstep"><div class="wstep-icon">📊</div><div class="wstep-title" id="ws3t">דשבורד</div><div class="wstep-sub" id="ws3s">ברור ומיידי</div></div>
+      </div>
+      <button class="btn-primary" id="w-btn">בואו נתחיל ←</button>
+      <div class="demo-divider" id="w-or">או</div>
+      <button class="btn-demo" id="demo-btn" onclick="startDemo()">▶ הצג דמו — ראה את הממשק עם נתונים לדוגמה</button>
+      <div class="welcome-privacy" id="w-privacy">🔒 נמחק תוך 60 שניות · אין גישה לבנק · פרטיות מוחלטת</div>
+    </div>
+  </div>
+
+  <!-- FAKE LOADING (demo only) -->
+  <div class="screen" id="s-loading">
+    <div class="load-wrap">
+      <div class="load-spinner"><div class="load-dot"></div><div class="load-dot"></div><div class="load-dot"></div></div>
+      <div class="load-title" id="ld-title">מנתח מסמכים...</div>
+      <div class="load-sub" id="ld-sub">מחלץ נתונים</div>
+      <div class="pbar"><div class="pfill" id="ld-fill" style="width:0%"></div></div>
+      <div class="load-step" id="ld-step"></div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="screen" id="s-dash">
+    <div class="demo-banner">
+      <div class="demo-banner-icon">🎭</div>
+      <div class="demo-banner-text">
+        <span id="demo-banner-title">מצב דמו</span><br>
+        <span class="demo-banner-sub" id="demo-banner-sub">הנתונים הם לדוגמה בלבד — לא אמיתיים</span>
+      </div>
+    </div>
+    <div class="pdf-switcher" id="pdf-sw"></div>
+    <div style="margin-bottom:4px;"><span class="doc-type-badge" id="type-badge">—</span></div>
+    <div class="doc-company" id="company-name"></div>
+    <div id="people-grid" class="people-grid" style="display:none;"></div>
+    <div id="dash"></div>
+    <div style="display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;">
+      <button class="btn-sec" onclick="goTo('s-welcome')" id="reset-btn">← חזור להתחלה</button>
+    </div>
+    <div class="disc" id="dash-disc">הנתונים הם לדוגמה בלבד. CashPilot אינה ייעוץ פיננסי, ביטוחי, או משפטי.</div>
+  </div>
+</div>
+
+<!-- CHAT -->
+<button class="chat-fab" id="chat-fab" onclick="toggleChat()">
+  <span>💬</span><span id="chat-fab-lbl">שאל אותי</span>
+</button>
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-header">
+    <div>
+      <p style="font-size:13px;font-weight:800;" id="chat-title">שאל אותי על המסמך</p>
+      <p style="font-size:11px;color:var(--text2);" id="chat-sub">אענה בשפה פשוטה</p>
+    </div>
+    <button class="chat-close" onclick="toggleChat()">×</button>
+  </div>
+  <div class="chat-msgs" id="chat-msgs"></div>
+  <div class="chat-input-row">
+    <input class="chat-input" id="chat-input" placeholder="שאל על המסמך..." onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send-btn" onclick="sendChat()" id="chat-send">→</button>
+  </div>
+  <div style="font-size:10px;color:var(--text2);text-align:center;" id="chat-disc">מצב דמו · הצ'אט פעיל עם PDF אמיתי</div>
+</div>
+
+<script>
+// ─── LANG ───────────────────────────────────────────────────────────────────
+var LANG = 'he';
+function t(he,en){return LANG==='he'?he:en;}
+function el(id){return document.getElementById(id);}
+
+// ─── MOCK DATA ───────────────────────────────────────────────────────────────
+var DEMO_DOCS = [
+  {
+    file: 'פניקס_ביטוח_בריאות.pdf',
+    type: {he:'ביטוח בריאות', en:'Health Insurance'},
+    company: {he:'פניקס ביטוח', en:'Phoenix Insurance'},
+    people: [
+      {
+        name: {he:'ריסה אדל', en:'Risa Adel'},
+        metrics: [
+          {label:{he:'פרמיה חודשית',en:'Monthly Premium'}, value:'₪127.55'},
+          {label:{he:'מספר פוליסה',en:'Policy Number'}, value:'312-4891-22'},
+          {label:{he:'תקופת כיסוי',en:'Coverage Period'}, value:{he:'2025',en:'2025'}},
+          {label:{he:'סה"כ שנתי',en:'Annual Total'}, value:'₪1,530.60'},
+        ],
+        breakdown: [
+          {label:{he:'ניתוחים',en:'Surgery'}, amount:48.20},
+          {label:{he:'תרופות מיוחדות',en:'Special Medication'}, amount:32.10},
+          {label:{he:'טיפולים נלווים',en:'Supplementary Treatments'}, amount:28.40},
+          {label:{he:'שיניים בסיסי',en:'Basic Dental'}, amount:18.85},
+        ],
+        coverages: [
+          {label:{he:'ניתוחים בישראל',en:'Surgery in Israel'}, status:'yes', detail:{he:'כיסוי מלא עד ₪250,000',en:'Full coverage up to ₪250,000'}},
+          {label:{he:'ניתוחים בחו"ל',en:'Surgery Abroad'}, status:'yes', detail:{he:'עד $50,000',en:'Up to $50,000'}},
+          {label:{he:'תרופות מיוחדות',en:'Special Medication'}, status:'yes', detail:{he:'עד ₪50,000 לשנה',en:'Up to ₪50,000/year'}},
+          {label:{he:'אשפוז פרטי',en:'Private Hospitalization'}, status:'yes', detail:{he:'חדר יחיד',en:'Single room'}},
+          {label:{he:'פיזיותרפיה',en:'Physiotherapy'}, status:'partial', detail:{he:'עד 10 טיפולים בשנה',en:'Up to 10 sessions/year'}},
+          {label:{he:'בריאות הנפש',en:'Mental Health'}, status:'partial', detail:{he:'עד 5 פגישות, ₪80 השתתפות עצמית',en:'Up to 5 sessions, ₪80 co-pay'}},
+          {label:{he:'טיפולי שיניים',en:'Dental Care'}, status:'partial', detail:{he:'בסיסי בלבד — אין כתרים ושתלים',en:'Basic only — no crowns or implants'}},
+          {label:{he:'תרופות שאינן בסל',en:'Off-basket Medication'}, status:'no', detail:{he:'לא כלול בפוליסה',en:'Not included in policy'}},
+          {label:{he:'ראייה ואופטיקה',en:'Vision & Optics'}, status:'no', detail:{he:'לא כלול',en:'Not covered'}},
+          {label:{he:'רפואה משלימה',en:'Complementary Medicine'}, status:'no', detail:{he:'אין כיסוי לנטורופתיה ואלטרנטיבי',en:'No coverage for naturopathy or alternatives'}},
+        ],
+        insights: [
+          {text:{he:'פרמיה גבוהה יחסית לכיסויים. שקלי להשוות מול מכבי זהב או לאומית פלטינום — ייתכן חיסכון של ₪20-40/חודש.',en:'Premium is relatively high for the coverage. Compare with Maccabi Gold or Leumit Platinum — potential savings of ₪20-40/month.'}, type:'tip'},
+          {text:{he:'⚠️ אין כיסוי לתרופות שאינן בסל. אם יש מחלה כרונית, זה יכול לעלות אלפי שקלים בשנה.',en:'⚠️ No off-basket medication coverage. For chronic conditions, this could cost thousands of shekels per year.'}, type:'warning'},
+          {text:{he:'כיסוי שיניים חלקי: כתרים ושתלים לא כלולים. שתל בודד עולה ₪8,000–₪15,000.',en:'Partial dental coverage: crowns and implants excluded. A single implant costs ₪8,000–₪15,000.'}, type:'warning'},
+          {text:{he:'כיסוי ניתוחים מצוין — ₪250,000 בישראל ו-$50,000 בחו"ל.',en:'Excellent surgery coverage — ₪250,000 in Israel and $50,000 abroad.'}, type:'info'},
+          {text:{he:'אפשר לשדרג לפלטינום ולקבל כיסוי שיניים מלא תמורת ~₪45 נוספים בחודש.',en:'Upgrade to Platinum for full dental coverage for ~₪45 more/month.'}, type:'tip'},
+          {text:{he:'פיזיותרפיה מוגבלת ל-10 טיפולים — אחרי פציעה ספורטיבית זה לא תמיד מספיק.',en:'Physiotherapy limited to 10 sessions — after a sports injury this is often not enough.'}, type:'info'},
+        ]
+      },
+      {
+        name: {he:'דניאל אדל', en:'Daniel Adel'},
+        metrics: [
+          {label:{he:'פרמיה חודשית',en:'Monthly Premium'}, value:'₪45.38'},
+          {label:{he:'מספר פוליסה',en:'Policy Number'}, value:'312-4891-22'},
+          {label:{he:'תקופת כיסוי',en:'Coverage Period'}, value:{he:'2025',en:'2025'}},
+          {label:{he:'סה"כ שנתי',en:'Annual Total'}, value:'₪544.56'},
+        ],
+        breakdown: [
+          {label:{he:'ניתוחים',en:'Surgery'}, amount:18.50},
+          {label:{he:'תרופות מיוחדות',en:'Special Medication'}, amount:12.30},
+          {label:{he:'טיפולים נלווים',en:'Supplementary Treatments'}, amount:9.20},
+          {label:{he:'שיניים בסיסי',en:'Basic Dental'}, amount:5.38},
+        ],
+        coverages: [
+          {label:{he:'ניתוחים בישראל',en:'Surgery in Israel'}, status:'yes', detail:{he:'כיסוי מלא עד ₪250,000',en:'Full coverage up to ₪250,000'}},
+          {label:{he:'ניתוחים בחו"ל',en:'Surgery Abroad'}, status:'yes', detail:{he:'עד $50,000',en:'Up to $50,000'}},
+          {label:{he:'תרופות מיוחדות',en:'Special Medication'}, status:'yes', detail:{he:'עד ₪50,000 לשנה',en:'Up to ₪50,000/year'}},
+          {label:{he:'אשפוז פרטי',en:'Private Hospitalization'}, status:'yes', detail:{he:'חדר יחיד',en:'Single room'}},
+          {label:{he:'פיזיותרפיה',en:'Physiotherapy'}, status:'partial', detail:{he:'עד 10 טיפולים',en:'Up to 10 sessions'}},
+          {label:{he:'בריאות הנפש',en:'Mental Health'}, status:'partial', detail:{he:'עד 5 פגישות',en:'Up to 5 sessions'}},
+          {label:{he:'טיפולי שיניים',en:'Dental Care'}, status:'partial', detail:{he:'בסיסי בלבד',en:'Basic only'}},
+          {label:{he:'תרופות שאינן בסל',en:'Off-basket Medication'}, status:'no', detail:{he:'לא כלול',en:'Not included'}},
+          {label:{he:'ראייה ואופטיקה',en:'Vision & Optics'}, status:'no', detail:{he:'לא כלול',en:'Not covered'}},
+          {label:{he:'רפואה משלימה',en:'Complementary Medicine'}, status:'no', detail:{he:'לא כלול',en:'Not covered'}},
+        ],
+        insights: [
+          {text:{he:'פרמיה נמוכה יחסית לגיל — ₪45/חודש לכיסוי ניתוחים מלא.',en:'Low premium relative to age — ₪45/month for full surgery coverage.'}, type:'info'},
+          {text:{he:'כדאי להוסיף כיסוי שיניים מלא בגיל צעיר — עלות נמוכה יותר כשמצטרפים צעיר.',en:'Smart to add full dental coverage at a young age — cheaper when you join young.'}, type:'tip'},
+          {text:{he:'אין כיסוי לתרופות שאינן בסל — בדוק אם צריך בעתיד.',en:'No off-basket medication coverage — check if needed in the future.'}, type:'warning'},
+        ]
+      }
+    ]
+  },
+  {
+    file: 'תלוש_שכר_מרץ_2026.pdf',
+    type: {he:'תלוש שכר', en:'Pay Stub'},
+    company: {he:'טכנולוגיה בע"מ', en:'Tech Ltd.'},
+    people: [
+      {
+        name: {he:'ישראל ישראלי', en:'Israel Israeli'},
+        metrics: [
+          {label:{he:'שכר ברוטו',en:'Gross Salary'}, value:'₪18,500'},
+          {label:{he:'שכר נטו',en:'Net Salary'}, value:'₪13,242'},
+          {label:{he:'חודש שכר',en:'Pay Period'}, value:{he:'מרץ 2026',en:'March 2026'}},
+          {label:{he:'ניכויים סה"כ',en:'Total Deductions'}, value:'₪5,258'},
+          {label:{he:'בונוס חודשי',en:'Monthly Bonus'}, value:'₪1,200'},
+        ],
+        breakdown: [
+          {label:{he:'שכר בסיס',en:'Base Salary'}, amount:17300},
+          {label:{he:'בונוס',en:'Bonus'}, amount:1200},
+          {label:{he:'מס הכנסה',en:'Income Tax'}, amount:2890},
+          {label:{he:'ביטוח לאומי',en:'National Insurance'}, amount:1024},
+          {label:{he:'פנסיה עובד',en:'Pension (Employee)'}, amount:1107},
+          {label:{he:'קרן השתלמות',en:'Training Fund'}, amount:737},
+        ],
+        coverages: [
+          {label:{he:'פנסיה (6%)',en:'Pension (6%)'}, status:'yes', detail:{he:'מעביד משלם 6.5% נוספים',en:'Employer pays additional 6.5%'}},
+          {label:{he:'קרן השתלמות',en:'Training Fund'}, status:'yes', detail:{he:'עובד 2.5% + מעביד 7.5%',en:'Employee 2.5% + Employer 7.5%'}},
+          {label:{he:'ביטוח אובדן כושר עבודה',en:'Disability Insurance'}, status:'yes', detail:{he:'כלול בהסכם',en:'Included in agreement'}},
+          {label:{he:'נסיעות',en:'Transportation'}, status:'partial', detail:{he:'החזר חלקי — ₪220/חודש',en:'Partial reimbursement — ₪220/month'}},
+          {label:{he:'אש"ל',en:'Meal Allowance'}, status:'no', detail:{he:'לא כלול בתלוש',en:'Not included in stub'}},
+          {label:{he:'שעות נוספות',en:'Overtime'}, status:'no', detail:{he:'לא דווחו שעות נוספות',en:'No overtime reported this month'}},
+        ],
+        insights: [
+          {text:{he:'שיעור מס אפקטיבי: 15.6% — נמוך יחסית. ייתכן שאפשר לנצל ניכויים נוספים (קרן פנסיה, קרן השתלמות).',en:'Effective tax rate: 15.6% — relatively low. You may be able to claim additional deductions (pension, training fund).'}, type:'info'},
+          {text:{he:'קרן השתלמות: המעביד מפקיד ₪1,298/חודש לחשבונך. עוד 4 שנים — קרוב ל-₪75,000 נזיל!',en:'Training fund: Employer deposits ₪1,298/month for you. In 4 more years — close to ₪75,000 liquid!'}, type:'tip'},
+          {text:{he:'לא דווחו שעות נוספות. אם עבדת מעבר ל-186 שעות בחודש, בדוק מול המנהל.',en:'No overtime reported. If you worked more than 186 hours this month, check with your manager.'}, type:'warning'},
+          {text:{he:'פנסיה כוללת: 12.5% מהשכר (מעביד + עובד) — מעל החוק. יפה!',en:'Total pension: 12.5% of salary (employer + employee) — above legal minimum. Great!'}, type:'tip'},
+          {text:{he:'החזר נסיעות ₪220 — בדוק אם כרטיסיה חודשית מוחזרת במלואה לפי מסלול הנסיעות שלך.',en:'₪220 transport reimbursement — check if monthly pass is fully reimbursed based on your commute.'}, type:'info'},
+        ]
+      }
+    ]
+  },
+  {
+    file: 'ביטוח_חיים_הראל.pdf',
+    type: {he:'ביטוח חיים', en:'Life Insurance'},
+    company: {he:'הראל ביטוח', en:'Harel Insurance'},
+    people: [
+      {
+        name: {he:'ישראל ישראלי', en:'Israel Israeli'},
+        metrics: [
+          {label:{he:'סכום ביטוח',en:'Coverage Amount'}, value:'₪500,000'},
+          {label:{he:'פרמיה נוכחית',en:'Current Premium'}, value:'₪45.26'},
+          {label:{he:'פרמיה ב-2040',en:'Premium in 2040'}, value:'₪187.00'},
+          {label:{he:'פרמיה ב-2059',en:'Premium in 2059'}, value:'₪1,857.37'},
+          {label:{he:'תאריך פקיעה',en:'Expiry Date'}, value:{he:'2059',en:'2059'}},
+        ],
+        breakdown: [],
+        coverages: [
+          {label:{he:'כיסוי מוות',en:'Death Coverage'}, status:'yes', detail:{he:'₪500,000 למוטבים',en:'₪500,000 to beneficiaries'}},
+          {label:{he:'מינוי מוטבים',en:'Beneficiary Designation'}, status:'yes', detail:{he:'מינוי עדכני',en:'Updated designation'}},
+          {label:{he:'כיסוי תאונה',en:'Accident Coverage'}, status:'partial', detail:{he:'מוות מתאונה × 2',en:'Accidental death × 2'}},
+          {label:{he:'אובדן כושר עבודה',en:'Disability Coverage'}, status:'no', detail:{he:'לא כלול — מומלץ להוסיף',en:'Not included — recommended to add'}},
+          {label:{he:'מחלות קשות',en:'Critical Illness'}, status:'no', detail:{he:'לא כלול בפוליסה זו',en:'Not included in this policy'}},
+          {label:{he:'פרמיה קבועה',en:'Fixed Premium'}, status:'no', detail:{he:'הפרמיה עולה משמעותית עם הגיל',en:'Premium increases significantly with age'}},
+        ],
+        insights: [
+          {text:{he:'🚨 פרמיה מסלים חד: מ-₪45 היום ל-₪1,857 ב-2059. עד 2040 כבר ₪187/חודש.',en:'🚨 Steep escalation: from ₪45 today to ₪1,857 in 2059. By 2040 already ₪187/month.'}, type:'warning'},
+          {text:{he:'שקול ביטוח חיים עם פרמיה קבועה (Level Term) — עולה יותר היום אבל חוסך עשרות אלפים לאורך זמן.',en:'Consider level premium life insurance — costs more today but saves tens of thousands over time.'}, type:'tip'},
+          {text:{he:'אין כיסוי למחלות קשות — הוספת ריידר מחלות קשות עשויה לחסוך עד ₪300,000 בטיפולים.',en:'No critical illness coverage — adding a critical illness rider could save up to ₪300,000 in treatment costs.'}, type:'warning'},
+          {text:{he:'הפוליסה משועבדת לבנק? בדוק בסעיף 7.3 — שיעבוד לבנק גורר פיצוי לבנק לפני המשפחה.',en:'Is the policy pledged to the bank? Check section 7.3 — bank pledge means payout goes to bank first.'}, type:'info'},
+          {text:{he:'₪500,000 זה כ-27 חודשי שכר — בדוק אם זה מספיק לפרנסת המשפחה.',en:'₪500,000 is ~27 months of salary — check if this is enough to support your family.'}, type:'info'},
+        ]
+      }
+    ]
+  }
+];
+
+// ─── PROGRESS ───────────────────────────────────────────────────────────────
+var SCREENS = ['s-welcome','s-loading','s-dash'];
+var LHE = ['ברוך הבא','ניתוח','תוצאות'];
+var LEN = ['Welcome','Analyzing','Results'];
+
+function renderProgress(active){
+  var labels = LANG==='he'?LHE:LEN;
+  var idx = SCREENS.indexOf(active||'s-welcome');
+  var h = '';
+  for(var i=0;i<labels.length;i++){
+    var done=i<idx, on=i===idx;
+    h+='<div class="pstep"><div class="pstep-circle'+(done?' done':on?' on':'')+'">'+
+       (done?'✓':(i+1))+'</div><div class="pstep-label'+(on?' on':'')+'">'+labels[i]+'</div></div>';
+    if(i<labels.length-1)h+='<div class="pline'+(i<idx?' on':'')+'"></div>';
+  }
+  el('prog-steps').innerHTML=h;
+}
+
+function goTo(id){
+  SCREENS.forEach(function(s){el(s).classList.toggle('active',s===id);});
+  el('chat-fab').classList.toggle('on', id==='s-dash');
+  if(id!=='s-dash'){el('chat-panel').classList.remove('on');}
+  renderProgress(id);
+  window.scrollTo(0,0);
+}
+
+// ─── LANGUAGE ───────────────────────────────────────────────────────────────
+function setLang(lang){
+  LANG = lang;
+  document.documentElement.dir = lang==='he'?'rtl':'ltr';
+  document.documentElement.lang = lang;
+  el('heb-btn').classList.toggle('on', lang==='he');
+  el('en-btn').classList.toggle('on', lang==='en');
+  updateText();
+  renderProgress();
+  if(el('s-dash').classList.contains('active')) renderDash(CUR_DOC);
+}
+
+function updateText(){
+  el('w-badge').textContent = t('✦ AI פיננסי ישראלי','✦ Israeli Financial AI');
+  el('w-title').innerHTML = t('הבן את הכסף שלך<br><em>תוך 30 שניות</em>','Understand your money<br><em>in 30 seconds</em>');
+  el('w-sub').textContent = t('העלה מסמכים פיננסיים וקבל ניתוח פשוט, ברור ומדויק — בלי חיבור לבנק.','Upload financial documents and get a simple, clear, accurate analysis — no bank connection needed.');
+  el('ws1t').textContent = t('העלה','Upload');
+  el('ws1s').textContent = t('עד 5 מסמכי PDF','Up to 5 PDFs');
+  el('ws2t').textContent = t('AI מנתח','AI Analyzes');
+  el('ws2s').textContent = t('מזהה ומחלץ הכל','Identifies & extracts');
+  el('ws3t').textContent = t('דשבורד','Dashboard');
+  el('ws3s').textContent = t('ברור ומיידי','Clear & instant');
+  el('w-btn').textContent = t('בואו נתחיל ←',"Let's start →");
+  el('w-or').textContent = t('או','or');
+  el('demo-btn').textContent = t('▶ הצג דמו — ראה את הממשק עם נתונים לדוגמה','▶ Show Demo — see the interface with sample data');
+  el('w-privacy').textContent = t('🔒 נמחק תוך 60 שניות · אין גישה לבנק · פרטיות מוחלטת','🔒 Deleted in 60s · No bank access · Full privacy');
+  el('demo-banner-title').textContent = t('מצב דמו','Demo Mode');
+  el('demo-banner-sub').textContent = t('הנתונים הם לדוגמה בלבד — לא אמיתיים','Sample data only — not real');
+  el('reset-btn').textContent = t('← חזור להתחלה','← Back to start');
+  el('dash-disc').textContent = t('הנתונים הם לדוגמה בלבד. CashPilot אינה ייעוץ פיננסי, ביטוחי, או משפטי.','Sample data only. CashPilot is not financial, insurance, or legal advice.');
+  el('chat-fab-lbl').textContent = t('שאל אותי','Ask me');
+  el('chat-title').textContent = t('שאל אותי על המסמך','Ask me about the document');
+  el('chat-sub').textContent = t('אענה בשפה פשוטה',"I'll explain simply");
+  el('chat-disc').textContent = t('מצב דמו · הצ\'אט פעיל עם PDF אמיתי','Demo mode · Chat active with real PDF');
+  el('chat-input').placeholder = t('שאל על המסמך...','Ask about the document...');
+}
+
+function toggleWide(){
+  var w = el('wrap');
+  w.classList.toggle('wide');
+  el('view-btn').textContent = w.classList.contains('wide')?'📱':'🖥';
+}
+
+// ─── DEMO FLOW ───────────────────────────────────────────────────────────────
+var CUR_DOC = 0;
+var CUR_PERSON = 0;
+
+var LOAD_STEPS_HE = [
+  'קורא פניקס_ביטוח_בריאות.pdf...',
+  'מזהה פוליסה משפחתית — 2 מבוטחים',
+  'מחלץ כיסויים וסכומים...',
+  'קורא תלוש_שכר_מרץ_2026.pdf...',
+  'מחלץ שכר, ניכויים, הטבות...',
+  'קורא ביטוח_חיים_הראל.pdf...',
+  'מחלץ טבלת עלייה בפרמיות...',
+  'בונה דשבורד...'
+];
+var LOAD_STEPS_EN = [
+  'Reading פניקס_ביטוח_בריאות.pdf...',
+  'Detected family policy — 2 insured',
+  'Extracting coverages and amounts...',
+  'Reading תלוש_שכר_מרץ_2026.pdf...',
+  'Extracting salary, deductions, benefits...',
+  'Reading ביטוח_חיים_הראל.pdf...',
+  'Extracting premium escalation table...',
+  'Building dashboard...'
+];
+
+function startDemo(){
+  goTo('s-loading');
+  var steps = LANG==='he'?LOAD_STEPS_HE:LOAD_STEPS_EN;
+  var total = steps.length;
+  var i = 0;
+
+  function nextStep(){
+    if(i >= total){
+      el('ld-fill').style.width='100%';
+      setTimeout(function(){
+        CUR_DOC = 0; CUR_PERSON = 0;
+        buildSwitcher();
+        renderDash(0);
+        goTo('s-dash');
+      }, 400);
+      return;
+    }
+    el('ld-title').textContent = t('מנתח מסמכים...','Analyzing documents...');
+    el('ld-sub').textContent = t('מחלץ נתונים','Extracting data');
+    el('ld-step').textContent = steps[i];
+    el('ld-fill').style.width = Math.round((i/total)*100)+'%';
+    i++;
+    setTimeout(nextStep, 340 + Math.random()*200);
+  }
+  nextStep();
+}
+
+// ─── DASHBOARD RENDER ─────────────────────────────────────────────────────────
+function buildSwitcher(){
+  el('pdf-sw').innerHTML = DEMO_DOCS.map(function(d,i){
+    return '<button class="pdf-btn'+(i===0?' on':'')+'" onclick="switchDoc('+i+')">'+d.file.replace('.pdf','').substring(0,22)+'</button>';
+  }).join('');
+}
+
+function switchDoc(i){
+  document.querySelectorAll('.pdf-btn').forEach(function(b,j){b.classList.toggle('on',j===i);});
+  CUR_DOC = i; CUR_PERSON = 0;
+  renderDash(i);
+  window.scrollTo(0,0);
+}
+
+function calcScore(coverages){
+  if(!coverages||!coverages.length)return null;
+  var pts = coverages.reduce(function(s,c){return s+(c.status==='yes'?2:c.status==='partial'?1:0);},0);
+  return Math.round((pts/(coverages.length*2))*100);
+}
+function scoreClass(n){return n>=80?'score-g':n>=55?'score-o':'score-r';}
+function scoreLbl(n){
+  if(n===null)return '';
+  if(n>=80)return t('מצוין','Excellent');
+  if(n>=65)return t('טוב','Good');
+  if(n>=50)return t('בינוני','Average');
+  return t('דורש תשומת לב','Needs attention');
+}
+function fmt(n){return n?'₪'+Math.round(n).toLocaleString('he-IL'):'—';}
+function lv(v){return (v&&typeof v==='object')?v[LANG]||v.he:v;}
+
+var ICONS = {warning:'⚠️',tip:'💡',info:'ℹ️'};
+
+function renderDash(docIdx){
+  var doc = DEMO_DOCS[docIdx];
+  el('type-badge').textContent = lv(doc.type);
+  el('company-name').textContent = lv(doc.company);
+
+  var people = doc.people;
+  var pgrid = el('people-grid');
+
+  if(people.length > 1){
+    pgrid.style.display = 'grid';
+    pgrid.innerHTML = people.map(function(p,pi){
+      var prem = p.metrics[0]; // first metric = premium
+      return '<div class="person-card" style="cursor:pointer;" onclick="switchPerson('+pi+')" id="pc-'+pi+'">'
+        +'<div class="person-card-icon">👤</div>'
+        +'<div class="person-card-name">'+lv(p.name)+'</div>'
+        +'<div class="person-card-amount">'+lv(prem.value)+'</div>'
+        +'<div class="person-card-label">'+lv(prem.label)+'</div>'
+        +'</div>';
+    }).join('');
+  } else {
+    pgrid.style.display = 'none';
+  }
+
+  renderPersonData(docIdx, CUR_PERSON);
+}
+
+function switchPerson(pi){
+  CUR_PERSON = pi;
+  // Highlight selected person card
+  document.querySelectorAll('[id^="pc-"]').forEach(function(c,i){
+    c.style.border = i===pi ? '2px solid var(--green)' : '1.5px solid var(--border)';
+    c.style.background = i===pi ? 'var(--green-l)' : 'var(--card)';
+  });
+  renderPersonData(CUR_DOC, pi);
+}
+
+function renderPersonData(docIdx, personIdx){
+  var doc = DEMO_DOCS[docIdx];
+  var person = doc.people[personIdx] || doc.people[0];
+  var metrics = person.metrics || [];
+  var breakdown = person.breakdown || [];
+  var coverages = person.coverages || [];
+  var insights = person.insights || [];
+  var score = calcScore(coverages);
+  var h = '';
+
+  // Health Score
+  if(coverages.length){
+    var sc = scoreClass(score);
+    h += '<div class="health-card '+sc+'">'
+      +'<div class="health-left"><div class="health-num">'+score+'</div><div class="health-label">'+scoreLbl(score)+'</div></div>'
+      +'<div class="health-right">'
+      +'<div class="health-title">'+t('ציון בריאות פיננסית','Financial Health Score')+'</div>'
+      +'<div class="health-bar"><div class="health-fill" id="hfill" style="width:0%"></div></div>'
+      +'<div class="health-sub">'+t('מבוסס על '+coverages.length+' כיסויים','Based on '+coverages.length+' coverages')+'</div>'
+      +'</div></div>';
+  }
+
+  // Metrics
+  if(metrics.length){
+    h += '<div class="section-hdr">'
+      +'<div class="section-title">'+t('המספרים שלך','Your Key Numbers')+'</div>'
+      +'<div class="section-sub">'+t('נתונים מרכזיים מהמסמך','Main figures from the document')+'</div></div>';
+    h += '<div class="metrics-grid">';
+    metrics.forEach(function(m){
+      h += '<div class="metric-card">'
+        +'<div class="metric-label">'+lv(m.label)+'</div>'
+        +'<div class="metric-value">'+lv(m.value)+'</div>'
+        +'</div>';
+    });
+    h += '</div>';
+  }
+
+  // Breakdown
+  if(breakdown.length){
+    var mx = Math.max.apply(null, breakdown.map(function(x){return x.amount||0;}));
+    if(mx > 0){
+      h += '<div class="section-hdr"><div class="section-title">'+t('פירוט תשלומים','Payment Breakdown')+'</div></div>';
+      h += '<div style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--sh);">';
+      breakdown.forEach(function(r){
+        var pct = Math.round((r.amount||0)/mx*100);
+        var isDeduction = lv(r.label).indexOf(t('מס','Tax'))>-1 || lv(r.label).indexOf(t('ניכוי','Deduction'))>-1 || lv(r.label).indexOf('ביטוח לאומי')>-1 || lv(r.label).indexOf('National Insurance')>-1;
+        var color = isDeduction ? 'var(--red)' : 'var(--blue)';
+        h += '<div class="brow">'
+          +'<span class="blbl">'+lv(r.label)+'</span>'
+          +'<div class="btr"><div class="bfill" style="width:'+pct+'%;background:'+color+'"></div></div>'
+          +'<span class="bamt">'+fmt(r.amount)+'</span>'
+          +'</div>';
+      });
+      h += '</div>';
+    }
+  }
+
+  // Missing / Not Covered
+  var notCov = coverages.filter(function(c){return c.status==='no';});
+  if(notCov.length){
+    h += '<div class="section-hdr">'
+      +'<div class="section-title">'+t('מה חסר לך','What You\'re Missing')+'</div>'
+      +'<div class="section-sub">'+t('פריטים שאינם מכוסים — שים לב!','Items NOT covered — pay attention!')+'</div></div>';
+    h += '<div class="missing-box"><div class="missing-title">❌ '+t('לא מכוסה:','Not covered:')+'</div>';
+    notCov.forEach(function(c){
+      h += '<div class="missing-item">❌ <div>'
+        +'<div style="font-weight:700;">'+lv(c.label)+'</div>'
+        +(c.detail?'<div style="font-size:11px;opacity:.8;">'+lv(c.detail)+'</div>':'')
+        +'</div></div>';
+    });
+    h += '</div>';
+  }
+
+  // Coverages
+  if(coverages.length){
+    h += '<div class="section-hdr">'
+      +'<div class="section-title">'+t('מה מכוסה אצלך','Your Coverage')+'</div>'
+      +'<div class="section-sub">'+t('ירוק = מכוסה · כתום = חלקי · אדום = לא מכוסה','Green = covered · Orange = partial · Red = not covered')+'</div></div>';
+    h += '<div class="cov-card">';
+    coverages.forEach(function(c){
+      var cls = c.status==='no' ? ' not-covered' : '';
+      var badge = c.status==='yes'
+        ? '<span class="cy">'+t('מכוסה ✓','Covered ✓')+'</span>'
+        : c.status==='no'
+          ? '<span class="cn">'+t('לא מכוסה ✗','Not Covered ✗')+'</span>'
+          : '<span class="cpar">'+t('חלקי ~','Partial ~')+'</span>';
+      h += '<div class="crow'+cls+'">'
+        +'<div><div class="cov-label">'+lv(c.label)+'</div>'
+        +(c.detail?'<div class="cov-detail'+(c.status==='no'?' danger':'')+'">' +lv(c.detail)+'</div>':'')
+        +'</div>'+badge+'</div>';
+    });
+    h += '</div>';
+  }
+
+  // Insights
+  if(insights.length){
+    h += '<div class="section-hdr">'
+      +'<div class="section-title">'+t('מה חשוב שתדע','What You Should Know')+'</div>'
+      +'<div class="section-sub">'+t('תובנות ספציפיות מהמסמך שלך','Specific insights from your document')+'</div></div>';
+    insights.forEach(function(x){
+      h += '<div class="insight-card '+x.type+'">'
+        +'<div class="insight-icon">'+(ICONS[x.type]||'ℹ️')+'</div>'
+        +'<div><div class="insight-text">'+lv(x.text)+'</div>'
+        +'<div class="insight-source">'+t('מתוך:','From:')+' '+lv(doc.type)+' — '+doc.file+'</div>'
+        +'<button class="flag-btn" onclick="this.textContent=\''+t('תודה ✓','Thanks ✓')+'\'">'+t('לא נכון? דווח','Incorrect? Report')+'</button>'
+        +'</div></div>';
+    });
+  }
+
+  el('dash').innerHTML = h;
+
+  // Animate health bar after render
+  if(coverages.length){
+    setTimeout(function(){
+      var hf = el('hfill');
+      if(hf) hf.style.width = score+'%';
+    }, 80);
+  }
+}
+
+// ─── CHAT (demo mode — friendly responses) ───────────────────────────────────
+var chatOpen = false;
+function toggleChat(){
+  chatOpen = !chatOpen;
+  el('chat-panel').classList.toggle('on', chatOpen);
+  if(chatOpen && !el('chat-msgs').innerHTML){
+    addMsg('ai', t(
+      'שלום! 👋 אני CashPilot. זה מצב דמו — אני יכול לדון בנתונים לדוגמה שמוצגים. שאל אותי על כיסויים, תשלומים, או כל מה שרואית בדשבורד.',
+      'Hi! 👋 I\'m CashPilot. This is demo mode — I can discuss the sample data shown. Ask me about coverages, payments, or anything you see in the dashboard.'
+    ));
+  }
+}
+
+var DEMO_ANSWERS_HE = {
+  'פרמיה': 'בדוגמה זו, ריסה אדל משלמת ₪127.55 לחודש ודניאל משלם ₪45.38. בפוליסה משפחתית כל מבוטח משלם לפי גיל וכיסוי.',
+  'שיניים': 'הכיסוי בדוגמה הוא חלקי — ניקוי ועקירות כלולים, אבל כתרים ושתלים לא. שתל בודד עולה ₪8,000-₪15,000.',
+  'ניתוח': 'כן, ניתוחים מכוסים מלא: עד ₪250,000 בישראל ועד $50,000 בחו"ל.',
+  'נטו': 'בתלוש לדוגמה, שכר נטו הוא ₪13,242 מתוך ₪18,500 ברוטו. ניכויים כוללים מס, ביטוח לאומי, פנסיה וקרן השתלמות.',
+  'פנסיה': 'בתלוש לדוגמה: עובד 6% + מעביד 6.5% = 12.5% סה"כ מהשכר. יפה מאוד!',
+  'ביטוח חיים': 'בדוגמה: ₪500,000 כיסוי, פרמיה מתחילה ב-₪45 ועולה ל-₪1,857 ב-2059. זה מה שנקרא "ריסק מדורג" — כדאי לשקול פרמיה קבועה.',
+  'ציון': 'הציון מחושב לפי כיסויים: כל "מכוסה" = 2 נקודות, "חלקי" = 1, "לא מכוסה" = 0. ממוצע מנורמל ל-100.',
+};
+var DEMO_ANSWERS_EN = {
+  'premium': 'In this demo, Risa Adel pays ₪127.55/month and Daniel pays ₪45.38. In family policies each person pays based on their age and coverage.',
+  'dental': 'Coverage in this demo is partial — cleaning and extractions included, but crowns and implants are not. A single implant costs ₪8,000-₪15,000.',
+  'surgery': 'Yes, surgery is fully covered: up to ₪250,000 in Israel and up to $50,000 abroad.',
+  'net': 'In the sample stub, net salary is ₪13,242 from ₪18,500 gross. Deductions include tax, national insurance, pension and training fund.',
+  'pension': 'In sample stub: employee 6% + employer 6.5% = 12.5% total. Excellent!',
+  'life': 'Sample: ₪500,000 coverage, premium starts at ₪45 and rises to ₪1,857 by 2059. This is a "stepped risk" policy — consider a level premium alternative.',
+  'score': 'Score is calculated from coverages: each "covered" = 2pts, "partial" = 1, "not covered" = 0. Averaged and normalized to 100.',
+};
+
+function addMsg(role, text){
+  var msgs = el('chat-msgs');
+  msgs.innerHTML += '<div class="chat-msg '+role+'">'+text+'</div>';
+  msgs.scrollTop = 9999;
+}
+
+function sendChat(){
+  var inp = el('chat-input');
+  var q = inp.value.trim();
+  if(!q) return;
+  inp.value = '';
+  addMsg('user', q);
+
+  setTimeout(function(){
+    var ans = '';
+    var ql = q.toLowerCase();
+    var answers = LANG==='he' ? DEMO_ANSWERS_HE : DEMO_ANSWERS_EN;
+    for(var key in answers){
+      if(ql.indexOf(key) > -1){ ans = answers[key]; break; }
+    }
+    if(!ans) ans = t(
+      'שאלה מעניינת! במצב דמו אני עובד עם נתונים לדוגמה. עם PDF אמיתי אוכל לענות עם מספרים מדויקים מהמסמך שלך.',
+      'Great question! In demo mode I work with sample data. With a real PDF I can answer with exact numbers from your document.'
+    );
+    addMsg('ai', ans);
+  }, 600);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+renderProgress('s-welcome');
+setLang('he');
+</script>
+</body>
+</html>

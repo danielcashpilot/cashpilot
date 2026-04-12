@@ -1,0 +1,13 @@
+{
+  "id": "msg_identify_health",
+  "type": "message",
+  "role": "assistant",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"type\":\"ביטוח בריאות\",\"company\":\"פניקס ביטוח\",\"people\":[\"ריסה אדל\",\"דניאל אדל\"]}"
+    }
+  ],
+  "model": "claude-sonnet-4-20250514",
+  "stop_reason": "end_turn"
+}

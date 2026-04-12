@@ -1,0 +1,21 @@
+{
+  "name": "cashpilot",
+  "version": "1.0.0",
+  "description": "CashPilot — Israeli financial PDF analyzer",
+  "private": true,
+  "scripts": {
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "jest --coverage --config jest.config.js",
+    "test:e2e": "playwright test",
+    "test:watch": "jest --watch --config jest.config.js",
+    "coverage": "jest --coverage --config jest.config.js",
+    "serve": "npx serve . -p 3001",
+    "install:browsers": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "supertest": "^6.3.4"
+  }
+}
