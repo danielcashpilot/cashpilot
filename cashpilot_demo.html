@@ -61,10 +61,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Ar
 .wstep-title{font-size:11px;font-weight:800;color:var(--text);margin-bottom:2px;}
 .wstep-sub{font-size:10px;color:var(--text2);line-height:1.4;}
 .welcome-privacy{font-size:11px;color:var(--text2);margin-top:12px;display:flex;align-items:center;justify-content:center;gap:4px;}
-.demo-divider{display:flex;align-items:center;gap:10px;margin:18px 0;color:var(--text2);font-size:12px;}
-.demo-divider::before,.demo-divider::after{content:'';flex:1;height:1px;background:var(--border);}
-.btn-demo{width:100%;padding:14px;font-size:14px;font-weight:700;border:2px solid var(--green-d);border-radius:14px;cursor:pointer;font-family:inherit;background:transparent;color:var(--green-d);transition:all .15s;}
-.btn-demo:hover{background:var(--green-l);}
 
 /* LOADING */
 .load-wrap{text-align:center;padding:60px 0;}
@@ -206,9 +202,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Ar
         <div class="wstep"><div class="wstep-icon">🤖</div><div class="wstep-title" id="ws2t">AI מנתח</div><div class="wstep-sub" id="ws2s">מזהה ומחלץ הכל</div></div>
         <div class="wstep"><div class="wstep-icon">📊</div><div class="wstep-title" id="ws3t">דשבורד</div><div class="wstep-sub" id="ws3s">ברור ומיידי</div></div>
       </div>
-      <button class="btn-primary" id="w-btn">בואו נתחיל ←</button>
-      <div class="demo-divider" id="w-or">או</div>
-      <button class="btn-demo" id="demo-btn" onclick="startDemo()">▶ הצג דמו — ראה את הממשק עם נתונים לדוגמה</button>
+      <button class="btn-primary" id="w-btn" onclick="startDemo()">בואו נתחיל ←</button>
       <div class="welcome-privacy" id="w-privacy">🔒 נמחק תוך 60 שניות · אין גישה לבנק · פרטיות מוחלטת</div>
     </div>
   </div>
@@ -471,8 +465,6 @@ function updateText(){
   el('ws3t').textContent = t('דשבורד','Dashboard');
   el('ws3s').textContent = t('ברור ומיידי','Clear & instant');
   el('w-btn').textContent = t('בואו נתחיל ←',"Let's start →");
-  el('w-or').textContent = t('או','or');
-  el('demo-btn').textContent = t('▶ הצג דמו — ראה את הממשק עם נתונים לדוגמה','▶ Show Demo — see the interface with sample data');
   el('w-privacy').textContent = t('🔒 נמחק תוך 60 שניות · אין גישה לבנק · פרטיות מוחלטת','🔒 Deleted in 60s · No bank access · Full privacy');
   el('demo-banner-title').textContent = t('מצב דמו','Demo Mode');
   el('demo-banner-sub').textContent = t('הנתונים הם לדוגמה בלבד — לא אמיתיים','Sample data only — not real');
