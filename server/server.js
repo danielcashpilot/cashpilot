@@ -4,6 +4,7 @@ const app     = express();
 
 // Allowed origins — add your Netlify URL here
 const ALLOWED_ORIGINS = [
+  'https://cashpilot1demo.netlify.app',
   'https://cashpilot.netlify.app',
   'http://localhost:3001',
   'http://127.0.0.1:3001',
