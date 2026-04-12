@@ -23,9 +23,9 @@ module.exports = defineConfig({
     },
   ],
   webServer: {
-    command: 'npx serve . -p 3001 --no-clipboard',
+    command: 'node node_modules/serve/build/main.js . -p 3001 --no-clipboard',
     url:     'http://localhost:3001',
     reuseExistingServer: !process.env.CI,
-    timeout: 10_000,
+    timeout: 30_000,
   },
 });
