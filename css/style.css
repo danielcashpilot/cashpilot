@@ -22,11 +22,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .btn-big:hover{opacity:.88;}
 .btn-sec{background:#f5f4f0;color:#1a1a18;border:0.5px solid #d3d1c7;font-size:13px;padding:10px 18px;border-radius:10px;cursor:pointer;font-family:inherit;}
 .welcome-hero{text-align:center;padding:20px 0 28px;}
-.welcome-icon{font-size:56px;margin-bottom:16px;}
+.welcome-badge{display:inline-block;background:#dcfce7;color:#14532d;font-size:11px;font-weight:700;padding:5px 14px;border-radius:20px;margin-bottom:14px;letter-spacing:.04em;}
 .welcome-title{font-size:26px;font-weight:700;margin-bottom:10px;line-height:1.3;}
 .welcome-sub{font-size:15px;color:#5f5e5a;line-height:1.7;margin-bottom:24px;}
-.welcome-examples{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:28px;}
-.ex-chip{font-size:12px;padding:6px 14px;border-radius:20px;background:#fff;border:0.5px solid #d3d1c7;color:#5f5e5a;}
+.wsteps{display:flex;gap:10px;justify-content:center;margin-bottom:28px;}
+.wstep{flex:1;max-width:120px;background:#fff;border:1.5px solid #e2e1db;border-radius:14px;padding:14px 10px;text-align:center;}
+.wstep-icon{font-size:22px;margin-bottom:6px;}
+.wstep-title{font-size:13px;font-weight:700;}
+.wstep-sub{font-size:10px;color:#888780;line-height:1.4;}
+.welcome-privacy{font-size:11px;color:#888780;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:4px;}
+.btn-primary{width:100%;padding:16px;font-size:16px;font-weight:700;background:linear-gradient(135deg,#15803d,#14532d);color:#fff;border:none;border-radius:14px;cursor:pointer;font-family:inherit;transition:opacity .15s;margin-top:4px;}
+.btn-primary:hover{opacity:.9;}
 .upload-slots{display:flex;gap:8px;justify-content:center;margin-bottom:20px;}
 .uslot{width:52px;height:52px;border-radius:12px;border:1.5px dashed #d3d1c7;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:18px;color:#b4b2a9;text-align:center;padding:4px;transition:all .2s;position:relative;}
 .uslot.filled{background:#eaf3de;border-color:#3b6d11;border-style:solid;}

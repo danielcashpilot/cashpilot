@@ -21,19 +21,16 @@
   <!-- WELCOME -->
   <div class="screen active" id="s-welcome">
     <div class="welcome-hero">
-      <div class="welcome-icon">💰</div>
+      <div class="welcome-badge" id="w-badge">✦ AI פיננסי ישראלי</div>
       <div class="welcome-title" id="w-title"></div>
       <div class="welcome-sub" id="w-sub"></div>
-      <div class="welcome-examples">
-        <span class="ex-chip">ביטוח בריאות</span>
-        <span class="ex-chip">תלוש שכר</span>
-        <span class="ex-chip">חשבון בנק</span>
-        <span class="ex-chip">משכנתא</span>
-        <span class="ex-chip">פנסיה</span>
-        <span class="ex-chip">ועוד...</span>
+      <div class="wsteps">
+        <div class="wstep"><div class="wstep-icon">📄</div><div class="wstep-title" id="ws1t">העלה</div><div class="wstep-sub" id="ws1s">עד 5 מסמכי PDF</div></div>
+        <div class="wstep"><div class="wstep-icon">🤖</div><div class="wstep-title" id="ws2t">AI מנתח</div><div class="wstep-sub" id="ws2s">מזהה ומחלץ הכל</div></div>
+        <div class="wstep"><div class="wstep-icon">📊</div><div class="wstep-title" id="ws3t">דשבורד</div><div class="wstep-sub" id="ws3s">ברור ומיידי</div></div>
       </div>
-      <button class="btn-big" onclick="goTo('s-upload')" id="w-btn"></button>
-      <div style="margin-top:14px;font-size:12px;color:#888780;" id="w-privacy"></div>
+      <button class="btn-primary" onclick="goTo('s-upload')" id="w-btn"></button>
+      <div class="welcome-privacy" id="w-privacy"></div>
     </div>
   </div>
 

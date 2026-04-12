@@ -84,8 +84,15 @@ function setLang(lang) {
 
 function updateText() {
   var el = function(id){ return document.getElementById(id); };
+  el('w-badge').textContent    = t('✦ AI פיננסי ישראלי','✦ Israeli Financial AI');
   el('w-title').textContent    = t('הבן את הכסף שלך תוך 30 שניות','Understand your money in 30 seconds');
   el('w-sub').textContent      = t('העלה מסמכים פיננסיים וקבל הסבר פשוט וברור על כל שקל.','Upload financial documents and get a simple, clear explanation of every shekel.');
+  el('ws1t').textContent       = t('העלה','Upload');
+  el('ws1s').textContent       = t('עד 5 מסמכי PDF','Up to 5 PDFs');
+  el('ws2t').textContent       = t('AI מנתח','AI Analyzes');
+  el('ws2s').textContent       = t('מזהה ומחלץ הכל','Identifies everything');
+  el('ws3t').textContent       = t('דשבורד','Dashboard');
+  el('ws3s').textContent       = t('ברור ומיידי','Clear & instant');
   el('w-btn').textContent      = t('בואו נתחיל ←',"Let's start →");
   el('w-privacy').textContent  = t('🔒 נמחק תוך 60 שניות · אין גישה לבנק · פרטיות מוחלטת','🔒 Deleted in 60s · No bank access · Full privacy');
   el('u-title').textContent    = t('העלה את המסמכים שלך','Upload your documents');
