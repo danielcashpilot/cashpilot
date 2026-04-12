@@ -7,13 +7,13 @@ test.describe('Demo Dashboard Flow', () => {
   });
 
   async function launchDemo(page) {
-    await page.click('#demo-btn');
+    await page.click('#w-btn');
     // Wait for the loading to finish and dashboard to appear
     await expect(page.locator('#s-dash')).toHaveClass(/active/, { timeout: 10000 });
   }
 
-  test('clicking demo button starts loading animation', async ({ page }) => {
-    await page.click('#demo-btn');
+  test('clicking start button starts loading animation', async ({ page }) => {
+    await page.click('#w-btn');
     // Loading screen should appear briefly
     await expect(page.locator('#s-loading')).toHaveClass(/active/);
   });
@@ -173,7 +173,7 @@ test.describe('Dashboard in English', () => {
   test('all dashboard labels switch to English', async ({ page }) => {
     await page.goto('/cashpilot_demo.html');
     await page.click('#en-btn');
-    await page.click('#demo-btn');
+    await page.click('#w-btn');
     await expect(page.locator('#s-dash')).toHaveClass(/active/, { timeout: 10000 });
 
     const bannerTitle = await page.locator('#demo-banner-title').innerText();

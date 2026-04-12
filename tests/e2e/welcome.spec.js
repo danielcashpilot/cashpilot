@@ -31,8 +31,8 @@ test.describe('Welcome Screen', () => {
     await expect(steps).toHaveCount(3);
   });
 
-  test('demo button is visible', async ({ page }) => {
-    await expect(page.locator('#demo-btn')).toBeVisible();
+  test('start button is visible', async ({ page }) => {
+    await expect(page.locator('#w-btn')).toBeVisible();
   });
 
   test('language toggle buttons present', async ({ page }) => {
@@ -88,10 +88,10 @@ test.describe('Language Toggle', () => {
     expect(dir).toBe('rtl');
   });
 
-  test('demo button text changes language', async ({ page }) => {
-    const heBefore = await page.locator('#demo-btn').innerText();
+  test('start button text changes language', async ({ page }) => {
+    const heBefore = await page.locator('#w-btn').innerText();
     await page.click('#en-btn');
-    const enAfter = await page.locator('#demo-btn').innerText();
+    const enAfter = await page.locator('#w-btn').innerText();
     expect(heBefore).not.toBe(enAfter);
   });
 });
