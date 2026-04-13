@@ -4,6 +4,11 @@
 var RAILWAY_URL = 'https://cashpilot-server-production-a4c8.up.railway.app/analyze';
 
 var TYPES = ['ביטוח בריאות','ביטוח מחלות קשות','ביטוח שיניים','ביטוח רכב','ביטוח מבנה/דירה','ביטוח אחריות מקצועית','ביטוח עסקים','ביטוח תכולה','ביטוח תאונות אישיות','ביטוח רכב חובה','ביטוח רכב מקיף','ביטוח מנהלים','ביטוח נסיעות לחול','ביטוח חבויות','ביטוח רכב צד ג','ביטוח חיים','ביטוח חיים צד ג','ביטוח חיות מחמד','ביטוח אובדן כושר עבודה','ביטוח משכנתא','חשבון חשמל','חשבון מים','חשבון ארנונה','חשבון גז','חשבון אינטרנט','חשבון טלוויזיה וכבלים','חשבון טלפון','חשבון פלאפון','חשבון בנק','פיקדונות','חיסכונות בשקלים','חיסכונות במטח','פנסיה','קופות גמל להשקעה','תוכנית חיסכון','קופות גמל','קרן השתלמות','תלוש שכר','משכנתא'];
+var TYPES_EN = ['Health Insurance','Critical Illness Insurance','Dental Insurance','Car Insurance','Home/Property Insurance','Professional Liability','Business Insurance','Contents Insurance','Personal Accident Insurance','Mandatory Car Insurance','Comprehensive Car Insurance','Executive Insurance','Travel Insurance','Liability Insurance','Third Party Car Insurance','Life Insurance','Third Party Life Insurance','Pet Insurance','Disability Insurance','Mortgage Insurance','Electricity Bill','Water Bill','Municipal Tax','Gas Bill','Internet Bill','TV & Cable Bill','Phone Bill','Mobile Bill','Bank Statement','Deposits','NIS Savings','Foreign Currency Savings','Pension','Investment Fund','Savings Plan','Provident Fund','Study Fund','Pay Stub','Mortgage'];
+function typeLabel(heType) {
+  var idx = TYPES.indexOf(heType);
+  return (S.lang === 'en' && idx !== -1) ? TYPES_EN[idx] : heType;
+}
 
 var TYPE_HINTS = {
   'תלוש שכר': 'Extract: employee name, employer name, pay period, base salary, hourly rate, overtime, additions (vacation/sick/bonus), vacation days used/accumulated, sick days used/accumulated, taxable income, national insurance base, all deductions (income tax+%, NI, health, pension, savings fund), employer contributions, net pay, bank account.',
@@ -78,6 +83,11 @@ function setLang(lang) {
   updateText();
   renderProgress();
   if(document.getElementById('s-dash').classList.contains('active') && S.results[S.cur]) {
+    // Update type badge and switcher labels without re-analyzing
+    document.getElementById('type-badge').textContent = typeLabel(S.types[S.cur]) || '—';
+    document.querySelectorAll('.pdf-btn').forEach(function(b, j){
+      b.textContent = S.files[j].name.replace('.pdf','').substring(0,20);
+    });
     renderDoc(S.cur);
   }
 }
@@ -234,7 +244,7 @@ function renderConfirm() {
   document.getElementById('confirm-cards').innerHTML = S.files.map(function(f,i){
     return '<div class="confirm-card" id="cc-' + i + '">'
       + '<div class="confirm-file">📄 ' + f.name + '</div>'
-      + '<div style="margin-bottom:10px;"><div class="confirm-type" id="ct-' + i + '">📋 ' + S.types[i] + '</div></div>'
+      + '<div style="margin-bottom:10px;"><div class="confirm-type" id="ct-' + i + '">📋 ' + typeLabel(S.types[i]) + '</div></div>'
       + '<div style="display:flex;gap:8px;flex-wrap:wrap;">'
       + '<button class="confirm-yes" onclick="confirmType(' + i + ')" id="yes-' + i + '">' + t('✓ כן, נכון','✓ Yes, correct') + '</button>'
       + '<button class="confirm-no" onclick="toggleSel(' + i + ')">' + t('לא, שנה','No, change') + '</button>'
@@ -261,7 +271,7 @@ function toggleSel(i) {
 
 function selType(i, type) {
   S.types[i] = type;
-  document.getElementById('ct-' + i).textContent = '📋 ' + type;
+  document.getElementById('ct-' + i).textContent = '📋 ' + typeLabel(type);
   document.getElementById('tsel-' + i).style.display = 'none';
   document.querySelectorAll('#tsel-' + i + ' .type-opt').forEach(function(b){ b.classList.toggle('on', b.textContent === type); });
   confirmType(i);
@@ -369,7 +379,7 @@ function renderDoc(i) {
   var data = S.results[i];
   var type = S.types[i];
 
-  document.getElementById('type-badge').textContent = type || '—';
+  document.getElementById('type-badge').textContent = typeLabel(type) || '—';
   document.getElementById('company-name').textContent = (data && data.company) || '';
 
   if(!data || !data.people || !data.people.length) {
@@ -492,10 +502,20 @@ function changeType(i, type) {
   document.getElementById('type-badge').textContent = type;
   document.getElementById('dash').innerHTML = '<div class="load-wrap"><div class="load-icon">🔄</div><div class="load-title">' + t('מנתח מחדש...','Re-analyzing...') + '</div></div>';
   var hint = TYPE_HINTS[type] || '';
-  var langInstr = S.lang === 'he' ? 'Language: Hebrew.' : 'Language: English ONLY, translate everything.';
+  var langInstr = S.lang === 'he'
+    ? 'Language: Hebrew (עברית פשוטה וברורה). All labels and values in Hebrew.'
+    : 'Language: English ONLY. Translate ALL content including Hebrew names, coverage terms, document labels to English.';
+  var prompt = 'You are CashPilot analyzing: "' + S.files[i].name + '" (' + type + ').\n'
+    + (hint ? 'Focus on: ' + hint + '\n' : '')
+    + 'CRITICAL: If this document has MULTIPLE insured people, detect their names and individual payments.\n'
+    + 'Extract ALL real data from THIS document only.\n'
+    + langInstr + '\n'
+    + 'Reply ONLY this exact JSON structure, no markdown, no extra text:\n'
+    + '{"company":"string","people":[{"name":"string","metrics":[{"label":"string","value":"string"}],"breakdown":[{"label":"string","amount":0}],"coverages":[{"label":"string","status":"yes|no|partial","detail":"string"}],"insights":[{"text":"string","type":"warning|tip|info"}]}]}\n'
+    + '- metrics: 4-5 real figures\n- breakdown: real cost breakdown if exists, [] otherwise\n- coverages: 8-12 real items\n- insights: 8-12 specific insights with real numbers\n- ALL text in ' + (S.lang==='he'?'Hebrew':'English');
   callAI([
     {type:'document', source:{type:'base64', media_type:'application/pdf', data:S.b64s[i]}},
-    {type:'text', text:'Analyze "' + type + '" document. ' + (hint?'Focus: '+hint+' ':'') + 'If multiple people, split by person.\nReply ONLY JSON: {"company":"string","people":[{"name":"string","metrics":[{"label":"string","value":"string"}],"breakdown":[{"label":"string","amount":0}],"coverages":[{"label":"string","status":"yes|no|partial","detail":"string"}],"insights":[{"text":"string","type":"warning|tip|info"}]}]}\ncoverages:8-12. insights:8-12. ' + langInstr}
+    {type:'text', text:prompt}
   ], 4000).then(function(raw){
     var parsed = safeJSON(raw);
     S.results[i] = (parsed && parsed.people) ? parsed : {company:'', people:[{name:t('כולם','All'),metrics:[],breakdown:[],coverages:[],insights:[]}]};
