@@ -86,6 +86,8 @@ function updateText() {
   var el = function(id){ return document.getElementById(id); };
   el('w-badge').textContent    = t('✦ AI פיננסי ישראלי','✦ Israeli Financial AI');
   el('w-title').textContent    = t('הבן את הכסף שלך תוך 30 שניות','Understand your money in 30 seconds');
+  el('id-sub').textContent     = t('זה לוקח כמה שניות','This takes a few seconds');
+  el('an-sub').textContent     = t('מחלץ מידע','Extracting data');
   el('w-sub').textContent      = t('העלה מסמכים פיננסיים וקבל הסבר פשוט וברור על כל שקל.','Upload financial documents and get a simple, clear explanation of every shekel.');
   el('ws1t').textContent       = t('העלה','Upload');
   el('ws1s').textContent       = t('עד 5 מסמכי PDF','Up to 5 PDFs');
@@ -213,7 +215,7 @@ function identifyNext(i) {
 
   return callAI([
     {type:'document', source:{type:'base64', media_type:'application/pdf', data:S.b64s[i]}},
-    {type:'text', text:'You are CashPilot. Read this document carefully.\nIdentify its exact type from:\n' + TYPES.join(' | ') + '\nAlso detect if this document covers MULTIPLE PEOPLE (e.g. a family insurance policy with different insured persons each paying different amounts).\nReply ONLY: {"type":"exact type","company":"company name","people":["name1","name2"] or []}'}
+    {type:'text', text:'You are CashPilot. Read this document carefully.\nIdentify its type. You MUST choose EXACTLY one of these types verbatim (copy-paste exactly, no changes):\n' + TYPES.join(' | ') + '\nAlso detect if this document covers MULTIPLE PEOPLE (e.g. a family insurance policy with different insured persons each paying different amounts).\nReply ONLY valid JSON: {"type":"EXACT type from list above","company":"company name","people":["name1","name2"] or []}'}
   ], 200).then(function(raw){
     var p = safeJSON(raw) || {};
     S.types[i] = p.type || TYPES[0];
@@ -403,6 +405,15 @@ function renderPersonData(data, personIdx) {
   var coverages = person.coverages || [];
   var insights = person.insights || [];
   var h = '';
+
+  if(coverages.length) {
+    var score = calcScore(coverages);
+    if(score !== null) {
+      var sCls = scoreClass(score);
+      var sLbl = scoreLbl(score, S.lang);
+      h += '<div class="score-card"><div class="score-ring ' + sCls + '"><span class="score-num">' + score + '</span><span class="score-pct">%</span></div><div class="score-info"><div class="score-title">' + t('ציון ביטוח פיננסי','Financial Health Score') + '</div><div class="score-lbl ' + sCls + '">' + sLbl + '</div><div class="score-sub">' + t('מבוסס על ' + coverages.length + ' סעיפים','Based on ' + coverages.length + ' items') + '</div></div></div>';
+    }
+  }
 
   if(metrics.length) {
     h += '<div class="section-header"><div class="section-title">' + t('המספרים החשובים שלך','Your key numbers') + '</div><div class="section-desc">' + t('הנתונים המרכזיים מהמסמך','Main figures from the document') + '</div></div>';
