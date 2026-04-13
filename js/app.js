@@ -133,12 +133,14 @@ function toggleWide() {
 // ============================================================
 function renderProgress(active) {
   var labels = S.lang === 'he' ? LABELS_HE : LABELS_EN;
-  var idx = SCREENS.indexOf(active || 's-welcome');
+  var sid = active || 's-welcome';
+  // Map real screens to 3-step progress
+  var pidx = sid === 's-welcome' ? 0 : sid === 's-upload' ? 1 : sid === 's-dash' ? 2 : 1;
   var h = '';
   for(var i = 0; i < labels.length; i++) {
-    var done = i < idx, on = i === idx;
+    var done = i < pidx, on = i === pidx;
     h += '<div class="pstep"><div class="pstep-circle' + (done?' done':on?' on':'') + '">' + (done?'✓':(i+1)) + '</div><div class="pstep-label' + (on?' on':'') + '">' + labels[i] + '</div></div>';
-    if(i < labels.length - 1) h += '<div class="pline' + (i < idx?' on':'') + '"></div>';
+    if(i < labels.length - 1) h += '<div class="pline' + (i < pidx?' on':'') + '"></div>';
   }
   document.getElementById('prog-steps').innerHTML = h;
 }
@@ -215,7 +217,7 @@ function identifyNext(i) {
 
   return callAI([
     {type:'document', source:{type:'base64', media_type:'application/pdf', data:S.b64s[i]}},
-    {type:'text', text:'You are CashPilot. Read this document carefully.\nIdentify its type. You MUST choose EXACTLY one of these types verbatim (copy-paste exactly, no changes):\n' + TYPES.join(' | ') + '\nAlso detect if this document covers MULTIPLE PEOPLE (e.g. a family insurance policy with different insured persons each paying different amounts).\nReply ONLY valid JSON: {"type":"EXACT type from list above","company":"company name","people":["name1","name2"] or []}'}
+    {type:'text', text:'You are CashPilot. The file is named: "' + S.files[i].name + '". Read this document carefully.\nIdentify its type. You MUST choose EXACTLY one of these types verbatim (copy-paste exactly, no changes, no translation):\n' + TYPES.join(' | ') + '\nIMPORTANT: Use the filename as a strong hint. For example if the filename contains "דירה" or "בית" choose "ביטוח מבנה/דירה". If it contains "ריסק" or "חיים" choose "ביטוח חיים". If it contains "משכנתא" choose "משכנתא". If it contains "פנסיה" choose "פנסיה". If it contains "שכר" choose "תלוש שכר".\nAlso detect if this document covers MULTIPLE PEOPLE (e.g. a family insurance policy with different insured persons each paying different amounts).\nReply ONLY valid JSON: {"type":"EXACT type from list above","company":"company name","people":["name1","name2"] or []}'}
   ], 200).then(function(raw){
     var p = safeJSON(raw) || {};
     S.types[i] = p.type || TYPES[0];
