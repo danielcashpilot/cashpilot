@@ -442,7 +442,28 @@ function renderPersonData(data, personIdx) {
     if(score !== null) {
       var sCls = scoreClass(score);
       var sLbl = scoreLbl(score, S.lang);
-      h += '<div class="score-card"><div class="score-ring ' + sCls + '"><span class="score-num">' + score + '</span><span class="score-pct">%</span></div><div class="score-info"><div class="score-title">' + t('ציון ביטוח פיננסי','Financial Health Score') + '</div><div class="score-lbl ' + sCls + '">' + sLbl + '</div><div class="score-sub">' + t('מבוסס על ' + coverages.length + ' סעיפים','Based on ' + coverages.length + ' items') + '</div></div></div>';
+      var ringColor = sCls === 'score-g' ? '#15803d' : sCls === 'score-o' ? '#d97706' : '#e24b4a';
+      var ringBg    = sCls === 'score-g' ? '#dcfce7'  : sCls === 'score-o' ? '#fef3c7'  : '#fee2e2';
+      var circ = 188.5; // 2π × r30
+      var offset = Math.round((1 - score / 100) * circ * 10) / 10;
+      h += '<div class="score-card">'
+        + '<div class="score-ring-wrap">'
+        + '<svg width="84" height="84" viewBox="0 0 84 84" style="display:block;">'
+        + '<circle cx="42" cy="42" r="30" fill="' + ringBg + '" stroke="#e2e1db" stroke-width="7"/>'
+        + '<circle cx="42" cy="42" r="30" fill="none" stroke="' + ringColor + '" stroke-width="7"'
+        + ' stroke-dasharray="' + circ + '" stroke-dashoffset="' + offset + '"'
+        + ' stroke-linecap="round" transform="rotate(-90 42 42)"'
+        + ' style="transition:stroke-dashoffset .6s ease;"/>'
+        + '<text x="42" y="47" text-anchor="middle" font-size="19" font-weight="800"'
+        + ' fill="' + ringColor + '" font-family="-apple-system,sans-serif">' + score + '</text>'
+        + '</svg>'
+        + '</div>'
+        + '<div class="score-info">'
+        + '<div class="score-title">' + t('ציון בריאות פיננסי','Financial Health Score') + '</div>'
+        + '<div class="score-lbl ' + sCls + '">' + sLbl + '</div>'
+        + '<div class="score-sub">' + t('מבוסס על ' + coverages.length + ' סעיפים','Based on ' + coverages.length + ' items') + '</div>'
+        + '</div>'
+        + '</div>';
     }
   }
 
