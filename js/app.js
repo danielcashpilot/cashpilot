@@ -329,11 +329,12 @@ function analyzeNext(i) {
     + 'Reply ONLY this exact JSON structure, no markdown, no extra text:\n'
     + '{"company":"string","people":[{"name":"string","metrics":[{"label":"string","value":"string"}],"breakdown":[{"label":"string","amount":0}],"coverages":[{"label":"string","status":"yes|no|partial","detail":"string"}],"insights":[{"text":"string","type":"warning|tip|info"}]}]}\n'
     + 'Rules:\n'
-    + '- metrics: 4-5 real figures\n'
+    + '- metrics: 4-5 key financial figures (amounts, percentages, dates) — NEVER include policy numbers, account IDs, reference codes, or document numbers\n'
     + '- breakdown: real cost breakdown if exists, [] otherwise\n'
-    + '- coverages: 8-12 real items\n'
-    + '- insights: 8-12 specific insights with real numbers\n'
-    + '- ALL text must be in ' + (S.lang==='he'?'Hebrew':'English');
+    + '- coverages: 8-12 real items. label = short coverage name. detail = one clear grammatically correct sentence explaining what is or is not covered — no broken text, no reversed words\n'
+    + '- insights: 8-12 specific insights with real numbers from the document\n'
+    + '- ALL text must be in ' + (S.lang==='he'?'Hebrew — write complete natural Hebrew sentences, correct word order':'English') + '\n'
+    + '- NEVER mix languages in the same field';
 
   return callAI([
     {type:'document', source:{type:'base64', media_type:'application/pdf', data:S.b64s[i]}},
@@ -406,6 +407,14 @@ function renderDoc(i) {
   if(!data || !data.people || !data.people.length) {
     document.getElementById('dash').innerHTML = '<p style="color:#888780;padding:24px 0;text-align:center;">' + t('לא ניתן לטעון נתונים','Could not load data') + '</p>';
     return;
+  }
+
+  // Detect language mismatch: UI is English but content is Hebrew
+  var langWarn = document.getElementById('lang-warn');
+  if(langWarn) {
+    var firstLabel = (data.people[0].metrics && data.people[0].metrics[0] && data.people[0].metrics[0].label) || '';
+    var contentIsHebrew = /[\u0590-\u05FF]/.test(firstLabel);
+    langWarn.style.display = (S.lang === 'en' && contentIsHebrew) ? 'block' : 'none';
   }
 
   var people = data.people;
@@ -568,7 +577,11 @@ function changeType(i, type) {
     + langInstr + '\n'
     + 'Reply ONLY this exact JSON structure, no markdown, no extra text:\n'
     + '{"company":"string","people":[{"name":"string","metrics":[{"label":"string","value":"string"}],"breakdown":[{"label":"string","amount":0}],"coverages":[{"label":"string","status":"yes|no|partial","detail":"string"}],"insights":[{"text":"string","type":"warning|tip|info"}]}]}\n'
-    + '- metrics: 4-5 real figures\n- breakdown: real cost breakdown if exists, [] otherwise\n- coverages: 8-12 real items\n- insights: 8-12 specific insights with real numbers\n- ALL text in ' + (S.lang==='he'?'Hebrew':'English');
+    + '- metrics: 4-5 key financial figures (amounts, percentages, dates) — NEVER include policy numbers, account IDs, or reference codes\n'
+    + '- breakdown: real cost breakdown if exists, [] otherwise\n'
+    + '- coverages: 8-12 real items. detail = one clear grammatically correct sentence — no broken text, no reversed words\n'
+    + '- insights: 8-12 specific insights with real numbers\n'
+    + '- ALL text in ' + (S.lang==='he'?'Hebrew — complete natural sentences, correct word order':'English') + '. NEVER mix languages';
   callAI([
     {type:'document', source:{type:'base64', media_type:'application/pdf', data:S.b64s[i]}},
     {type:'text', text:prompt}
