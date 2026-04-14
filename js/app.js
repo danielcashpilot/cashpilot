@@ -55,7 +55,7 @@ function filenameTypeOverride(filename, aiType) {
 
 function t(he, en) { return S.lang === 'he' ? he : en; }
 function sleep(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
-function fmt(n) { return n ? '₪' + Math.round(n).toLocaleString('he-IL') : '—'; }
+function fmt(n) { if(n !== null && n !== undefined && n !== '' && n !== false) return '₪' + Math.round(n).toLocaleString('he-IL'); return '—'; }
 function toB64(f) {
   return new Promise(function(res, rej) {
     var r = new FileReader();
@@ -99,7 +99,8 @@ function setLang(lang) {
   document.getElementById('heb-btn').classList.toggle('on', lang === 'he');
   document.getElementById('en-btn').classList.toggle('on', lang === 'en');
   updateText();
-  renderProgress();
+  var _activeScreen = SCREENS.find(function(s){ return document.getElementById(s).classList.contains('active'); }) || 's-welcome';
+  renderProgress(_activeScreen);
   if(document.getElementById('s-dash').classList.contains('active') && S.results[S.cur]) {
     // Update type badge and switcher labels without re-analyzing
     document.getElementById('type-badge').textContent = typeLabel(S.types[S.cur]) || '—';
@@ -137,6 +138,7 @@ function updateText() {
   el('cf-btn').textContent     = t('נתח ←','Analyze →');
   el('change-link').textContent = t('זה לא נכון? שנה סוג מסמך','Not correct? Change document type');
   el('reset-btn').textContent  = t('העלה מסמכים חדשים','Upload new documents');
+  el('export-btn').textContent = t('שמור סיכום ↓','Save summary ↓');
   el('dash-disc').textContent  = t('הנתונים מבוססים על המסמך שהועלה בלבד. CashPilot אינה ייעוץ פיננסי, ביטוחי, או משפטי. תמיד בדוק מול המסמך המקורי.','Data based solely on uploaded document. CashPilot is not financial, insurance, or legal advice. Always verify against the original document.');
   el('chat-fab-lbl').textContent = t('יש לך שאלה? שאל אותי','Have a question? Ask me');
   el('chat-title').textContent = t('שאל אותי על המסמך','Ask me about the document');
@@ -410,13 +412,13 @@ function renderDoc(i) {
   var pgrid = document.getElementById('people-grid');
   if(people.length > 1) {
     pgrid.style.display = 'grid';
-    pgrid.innerHTML = people.map(function(p){
+    pgrid.innerHTML = people.map(function(p, idx){
       var payMetric = p.metrics && p.metrics.find(function(m){
         return m.label && (m.label.indexOf('חודש') > -1 || m.label.indexOf('month') > -1 || m.label.indexOf('עלות') > -1 || m.label.indexOf('cost') > -1 || m.label.toLowerCase().indexOf('premium') > -1 || m.label.indexOf('פרמיה') > -1);
       });
       var amount = payMetric ? payMetric.value : (p.metrics && p.metrics[0] ? p.metrics[0].value : '—');
       var label = payMetric ? payMetric.label : t('תשלום חודשי','Monthly payment');
-      return '<div class="person-card"><div class="person-card-icon">👤</div><div class="person-card-name">' + p.name + '</div><div class="person-card-amount">' + amount + '</div><div class="person-card-label">' + label + '</div></div>';
+      return '<div class="person-card" style="cursor:pointer;" onclick="switchPerson(' + idx + ')"><div class="person-card-icon">👤</div><div class="person-card-name">' + p.name + '</div><div class="person-card-amount">' + amount + '</div><div class="person-card-label">' + label + '</div></div>';
     }).join('');
   } else {
     pgrid.style.display = 'none';
@@ -553,7 +555,7 @@ function closeModal() { document.getElementById('modal').classList.remove('on');
 function changeType(i, type) {
   closeModal();
   S.types[i] = type;
-  document.getElementById('type-badge').textContent = type;
+  document.getElementById('type-badge').textContent = typeLabel(type);
   document.getElementById('dash').innerHTML = '<div class="load-wrap"><div class="load-icon">🔄</div><div class="load-title">' + t('מנתח מחדש...','Re-analyzing...') + '</div></div>';
   var hint = TYPE_HINTS[type] || '';
   var langInstr = S.lang === 'he'
