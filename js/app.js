@@ -113,7 +113,7 @@ function setLang(lang) {
 function updateText() {
   var el = function(id){ return document.getElementById(id); };
   el('w-badge').textContent    = t('✦ AI פיננסי ישראלי','✦ Israeli Financial AI');
-  el('w-title').textContent    = t('הבן את הכסף שלך תוך 30 שניות','Understand your money in 30 seconds');
+  el('w-title').innerHTML      = t('הבן את הכסף שלך תוך <span class="grad-num">30</span> שניות','Understand your money in <span class="grad-num">30</span> seconds');
   el('id-sub').textContent     = t('זה לוקח כמה שניות','This takes a few seconds');
   el('an-sub').textContent     = t('מחלץ מידע','Extracting data');
   el('w-sub').textContent      = t('העלה מסמכים פיננסיים וקבל הסבר פשוט וברור על כל שקל.','Upload financial documents and get a simple, clear explanation of every shekel.');
@@ -162,8 +162,8 @@ function toggleWide() {
 function renderProgress(active) {
   var labels = S.lang === 'he' ? LABELS_HE : LABELS_EN;
   var sid = active || 's-welcome';
-  // Map real screens to 3-step progress
-  var pidx = sid === 's-welcome' ? 0 : sid === 's-upload' ? 1 : sid === 's-dash' ? 2 : 1;
+  var _pidxMap = {'s-welcome':0,'s-upload':1,'s-identify':2,'s-confirm':3,'s-analyze':4,'s-dash':5};
+  var pidx = _pidxMap[sid] !== undefined ? _pidxMap[sid] : 0;
   var h = '';
   for(var i = 0; i < labels.length; i++) {
     var done = i < pidx, on = i === pidx;
@@ -455,7 +455,7 @@ function renderPersonData(data, personIdx) {
         + ' stroke-linecap="round" transform="rotate(-90 42 42)"'
         + ' style="transition:stroke-dashoffset .6s ease;"/>'
         + '<text x="42" y="47" text-anchor="middle" font-size="19" font-weight="800"'
-        + ' fill="' + ringColor + '" font-family="-apple-system,sans-serif">' + score + '</text>'
+        + ' fill="' + ringColor + '" font-family="-apple-system,sans-serif" data-score="' + score + '">0</text>'
         + '</svg>'
         + '</div>'
         + '<div class="score-info">'
@@ -521,6 +521,20 @@ function renderPersonData(data, personIdx) {
   }
 
   document.getElementById('dash').innerHTML = h;
+
+  // Animate score counter from 0 → target
+  var scoreEl = document.querySelector('#dash text[data-score]');
+  if (scoreEl) {
+    var _target = parseInt(scoreEl.getAttribute('data-score'), 10);
+    var _t0 = performance.now();
+    var _dur = 900;
+    (function _tick(now) {
+      var p = Math.min((now - _t0) / _dur, 1);
+      var ease = 1 - Math.pow(1 - p, 3); // ease-out cubic
+      scoreEl.textContent = Math.round(ease * _target);
+      if (p < 1) requestAnimationFrame(_tick);
+    })(performance.now());
+  }
 }
 
 // ============================================================
