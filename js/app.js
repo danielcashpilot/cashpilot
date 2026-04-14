@@ -35,6 +35,24 @@ var S = {
 // ============================================================
 // HELPERS
 // ============================================================
+var FILENAME_OVERRIDES = [
+  { keywords: ['ריסק'],                   type: 'ביטוח חיים' },
+  { keywords: ['דירה', 'בית', 'מבנה'],   type: 'ביטוח מבנה/דירה' },
+  { keywords: ['משכנתא', 'משכנתאות'],    type: 'משכנתא' },
+  { keywords: ['פנסיה'],                  type: 'פנסיה' },
+  { keywords: ['שכר', 'תלוש'],           type: 'תלוש שכר' },
+];
+function filenameTypeOverride(filename, aiType) {
+  var lower = filename.toLowerCase();
+  for (var i = 0; i < FILENAME_OVERRIDES.length; i++) {
+    var rule = FILENAME_OVERRIDES[i];
+    for (var j = 0; j < rule.keywords.length; j++) {
+      if (lower.indexOf(rule.keywords[j]) !== -1) return rule.type;
+    }
+  }
+  return aiType;
+}
+
 function t(he, en) { return S.lang === 'he' ? he : en; }
 function sleep(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
 function fmt(n) { return n ? '₪' + Math.round(n).toLocaleString('he-IL') : '—'; }
@@ -227,10 +245,11 @@ function identifyNext(i) {
 
   return callAI([
     {type:'document', source:{type:'base64', media_type:'application/pdf', data:S.b64s[i]}},
-    {type:'text', text:'You are CashPilot. The file is named: "' + S.files[i].name + '". Read this document carefully.\nIdentify its type. You MUST choose EXACTLY one of these types verbatim (copy-paste exactly, no changes, no translation):\n' + TYPES.join(' | ') + '\nIMPORTANT: Use the filename as a strong hint. For example if the filename contains "דירה" or "בית" choose "ביטוח מבנה/דירה". If it contains "ריסק" or "חיים" choose "ביטוח חיים". If it contains "משכנתא" choose "משכנתא". If it contains "פנסיה" choose "פנסיה". If it contains "שכר" choose "תלוש שכר".\nAlso detect if this document covers MULTIPLE PEOPLE (e.g. a family insurance policy with different insured persons each paying different amounts).\nReply ONLY valid JSON: {"type":"EXACT type from list above","company":"company name","people":["name1","name2"] or []}'}
+    {type:'text', text:'You are CashPilot. The file is named: "' + S.files[i].name + '".\nCRITICAL RULES — filename keywords override document content. You MUST apply these before reading anything else:\n- filename contains "ריסק" → MUST choose "ביטוח חיים" (term life/risk policy, NOT health insurance)\n- filename contains "דירה" or "בית" or "מבנה" → MUST choose "ביטוח מבנה/דירה"\n- filename contains "משכנתא" → MUST choose "משכנתא"\n- filename contains "פנסיה" → MUST choose "פנסיה"\n- filename contains "שכר" or "תלוש" → MUST choose "תלוש שכר"\nIf no keyword matches, read the document and choose EXACTLY one of these types verbatim:\n' + TYPES.join(' | ') + '\nAlso detect if this document covers MULTIPLE PEOPLE (e.g. a family insurance policy with different insured persons each paying different amounts).\nReply ONLY valid JSON: {"type":"EXACT type from list above","company":"company name","people":["name1","name2"] or []}'}
   ], 200).then(function(raw){
     var p = safeJSON(raw) || {};
-    S.types[i] = p.type || TYPES[0];
+    var aiType = p.type || TYPES[0];
+    S.types[i] = filenameTypeOverride(S.files[i].name, aiType);
     S.results[i] = {_company: p.company || '', _people: p.people || []};
   }).catch(function(){
     S.types[i] = TYPES[0]; S.results[i] = {_company:'', _people:[]};

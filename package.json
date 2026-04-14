@@ -10,7 +10,9 @@
     "test:watch": "jest --watch --config jest.config.js",
     "coverage": "jest --coverage --config jest.config.js",
     "serve": "npx serve . -p 3001",
-    "install:browsers": "playwright install chromium"
+    "install:browsers": "playwright install chromium",
+    "golden": "node scripts/capture.js",
+    "regression": "node scripts/regression.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",
